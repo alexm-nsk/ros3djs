@@ -19,29 +19,29 @@ ROS3D.SceneMesh = function(options) {
   var message = options.message;
 
   if (message.id.includes('brick') && message.meshes[0] != undefined) {
-    if(message.id in objects) {
-      viewer.scene.remove(objects[message.id])
-    }
-      const geometry = new THREE.BufferGeometry();
 
-      verts = []
-      norms = []
-      for (triangle of message.meshes[0].triangles) {
-      for(v_i of triangle.vertex_indices) {
+    const geometry = new THREE.BufferGeometry();
+
+    var verts = []
+    var norms = []
+    message.meshes[0].triangles.forEach (triangle => {
+      triangle.vertex_indices.forEach(v_i => {
         verts.push(message.meshes[0].vertices[v_i].x);
         verts.push(message.meshes[0].vertices[v_i].y);
         verts.push(message.meshes[0].vertices[v_i].z);
-        normLength = Math.sqrt(message.meshes[0].vertices[v_i].x ** 2 + message.meshes[0].vertices[v_i].y ** 2 + message.meshes[0].vertices[v_i].z ** 2);
+        normLength = Math.sqrt(Math.pow(message.meshes[0].vertices[v_i].x, 2) +
+                               Math.pow(message.meshes[0].vertices[v_i].y, 2) +
+                               Math.pow(message.meshes[0].vertices[v_i].z, 2));
         norms.push(message.meshes[0].vertices[v_i].x/normLength);
         norms.push(message.meshes[0].vertices[v_i].y/normLength);
         norms.push(message.meshes[0].vertices[v_i].z/normLength);
-      }
-    }
+      });
+    });
     const vertices = new Float32Array( verts );
     const normals = new Float32Array( norms );
     geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
     geometry.setAttribute( 'normal', new THREE.BufferAttribute( normals, 3 ) );
-    const material = new ROS3D.makeColorMaterial( 1, 1, 1, 1 );
+    const material = ROS3D.makeColorMaterial( 1, 1, 1, 1 );
     const mesh = new THREE.Mesh( geometry, material );
     mesh.position.x = message.pose.position.x;
     mesh.position.y = message.pose.position.y;
