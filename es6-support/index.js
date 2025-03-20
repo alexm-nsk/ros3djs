@@ -3,8 +3,8 @@ export * from './Ros3D'
 
 export * from './depthcloud/DepthCloud'
 
-export * from './interactivemarkers/InteractiveMarker'
-export * from './interactivemarkers/InteractiveMarkerClient'
+export * from './scene/SceneClient'
+export * from './scene/SceneMesh'
 
 export * from './interactivemarkers/InteractiveMarker'
 export * from './interactivemarkers/InteractiveMarkerClient'
