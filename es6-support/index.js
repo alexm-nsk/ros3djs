@@ -5,6 +5,9 @@ export * from './depthcloud/DepthCloud'
 
 export * from './interactivemarkers/InteractiveMarker'
 export * from './interactivemarkers/InteractiveMarkerClient'
+
+export * from './interactivemarkers/InteractiveMarker'
+export * from './interactivemarkers/InteractiveMarkerClient'
 export * from './interactivemarkers/InteractiveMarkerControl'
 export * from './interactivemarkers/InteractiveMarkerHandle'
 export * from './interactivemarkers/InteractiveMarkerMenu'

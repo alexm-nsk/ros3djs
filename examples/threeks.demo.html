@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.110.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/eventemitter3@5.0/dist/eventemitter3.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/roslib@1/build/roslib.js"></script>
+
+<script>
+
+  var objects = {};
+function init() {
+    // Connect to ROS.
+    var ros = new ROSLIB.Ros({
+      url : 'ws://localhost:9090'
+    });
+
+  var listener = new ROSLIB.Topic({
+    ros : ros,
+    name : '/move_group/monitored_planning_scene',
+    messageType : 'moveit_msgs/PlanningScene'
+  });
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+  const renderer = new THREE.WebGLRenderer();
+  renderer.setSize( window.innerWidth, window.innerHeight );
+  document.body.appendChild( renderer.domElement );
+
+  camera.position.z = 2;
+  camera.position.y = -2;
+  camera.rotation.x = .8;
+
+  scene.add(new THREE.DirectionalLight(0xaaaaaa, Math.PI ));
+  const light = new THREE.AmbientLight( 0x404040 ); // soft white light
+  scene.add( light );
+
+    listener.subscribe(function(msg) {
+      /*const vertices = new Float32Array( [
+          -10.0, -10.0,  0.0, // v0
+          10.0, -10.0,  0.0, // v1
+          10.0,  10.0,  0.0, // v2
+        ] );
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
+        const material = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
+        const mesh = new THREE.Mesh( geometry, material );
+        viewer.scene.add(mesh)*/
+        //angle = ;
+        for (const element of msg.world.collision_objects/*.concat(msg.world.attached_collision_objects)*/) {
+          if (/*element.id.includes("brick") && */element.meshes[0] != undefined) {
+            //console.log(element.id);
+            if(element.id in objects) {
+              scene.remove(objects[element.id])
+            }
+              const geometry = new THREE.BufferGeometry();
+
+              verts = []
+              norms = []
+              for (triangle of element.meshes[0]["triangles"]) {
+              for(v_i of triangle["vertex_indices"]) {
+                verts.push(element.meshes[0].vertices[v_i]["x"]);
+                verts.push(element.meshes[0].vertices[v_i]["y"]);
+                verts.push(element.meshes[0].vertices[v_i]["z"]);
+                normLength = Math.sqrt(element.meshes[0].vertices[v_i]["x"] ** 2 + element.meshes[0].vertices[v_i]["y"] ** 2 + element.meshes[0].vertices[v_i]["z"] ** 2);
+                norms.push(element.meshes[0].vertices[v_i]["x"]/normLength);
+                norms.push(element.meshes[0].vertices[v_i]["y"]/normLength);
+                norms.push(element.meshes[0].vertices[v_i]["z"]/normLength);
+              }
+            }
+            const vertices = new Float32Array( verts );
+            const normals = new Float32Array( norms );
+            geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
+            geometry.setAttribute( 'normal', new THREE.BufferAttribute( normals, 3 ) );
+
+            const material = new THREE.MeshStandardMaterial( { color: 0xaaaa00 } );
+            //material.wireframe = true;
+            const mesh = new THREE.Mesh( geometry, material );
+            mesh.position.x = element["pose"]["position"].x;
+            mesh.position.y = element["pose"]["position"].y;
+            mesh.position.z = element["pose"]["position"].z;
+            mesh.rotation.setFromQuaternion(new THREE.Quaternion(
+              element["pose"]["orientation"].x,
+              element["pose"]["orientation"].y,
+              element["pose"]["orientation"].z,
+              element["pose"]["orientation"].w
+            ));
+
+            scene.add(mesh)
+            objects[element.id] = mesh;
+          }
+        }
+        for (color of msg.object_colors) {
+          objects[color["id"]].material.color.setRGB(color["color"]["r"], color["color"]["g"], color["color"]["b"]);
+        }
+
+      });
+      function animate() {
+            renderer.render( scene, camera );
+        }
+        renderer.setAnimationLoop( animate );
+  }
+</script>
+</head>
+
+<body onload="init()">
+  <h1>RViz</h1>
+  <p>Run the following commands in the terminal then refresh this page.</p>
+
+  <div id="urdf"></div>
+</body>
+</html>
+
