@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.110.0/build/three.min.js"></script>
 <!-- <script src="https://static.robotwebtools.org/threejs/current/ColladaLoader.js"></script> --><!-- CDN is gone -->
 <!-- <script src="https://static.robotwebtools.org/threejs/current/STLLoader.js"></script> --><!-- CDN is gone -->
 <script src="https://cdn.jsdelivr.net/npm/eventemitter3@5.0/dist/eventemitter3.umd.min.js"></script>
@@ -42,6 +42,20 @@
       rate : 10.0
     });
 
+    // Setup a client to listen to TFs.
+    var sceneClient = new ROS3D.SceneClient({
+      ros : ros,
+      tfClient : tfClient,
+      rootObject : viewer.scene,
+    });
+
+    var urdfClient = new ROS3D.UrdfClient({
+      ros : ros,
+      tfClient : tfClient,
+      //path : 'https://raw.githubusercontent.com/PR2/pr2_common/melodic-devel/',
+      path : 'http://0.0.0.0/data',
+      rootObject : viewer.scene,
+    });
   }
 </script>
 </head>

@@ -65,12 +65,12 @@ ROS3D.SceneClient.prototype.processMessage = function(message){
         message : element
       });
 
-      this.meshes[key] = new ROS3D.SceneNode({
-          frameID : message.header.frame_id,
+      this.meshes[element.id] = new ROS3D.SceneNode({
+          frameID : element.header.frame_id,
           tfClient : this.tfClient,
-          object : newMarker
+          object : newMesh
         });
-        this.rootObject.add(this.markers[key]);
+        this.rootObject.add(this.meshes[element.id]);
       }
       });
 

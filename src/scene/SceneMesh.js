@@ -17,31 +17,34 @@ ROS3D.SceneMesh = function(options) {
 
   options = options || {};
   var message = options.message;
-  console.log(message);
-  if (message.id.includes('brick') && message.meshes[0] !== undefined) {
+  //console.log(message);
+  if (/*message.id.includes('brick') && */message.meshes[0] !== undefined) {
 
-    const geometry = new THREE.BufferGeometry();
 
     var verts = []
     var norms = []
     message.meshes[0].triangles.forEach (triangle => {
       triangle.vertex_indices.forEach(v_i => {
-        verts.push(message.meshes[0].vertices[v_i].x);
-        verts.push(message.meshes[0].vertices[v_i].y);
-        verts.push(message.meshes[0].vertices[v_i].z);
-        const normLength = Math.sqrt(Math.pow(message.meshes[0].vertices[v_i].x, 2) +
-                                     Math.pow(message.meshes[0].vertices[v_i].y, 2) +
-                                     Math.pow(message.meshes[0].vertices[v_i].z, 2));
-        norms.push(message.meshes[0].vertices[v_i].x/normLength);
-        norms.push(message.meshes[0].vertices[v_i].y/normLength);
-        norms.push(message.meshes[0].vertices[v_i].z/normLength);
+        const vertex = message.meshes[0].vertices[v_i]
+        verts.push(vertex.x);
+        verts.push(vertex.y);
+        verts.push(vertex.z);
+        const normLength = Math.sqrt(Math.pow(vertex.x, 2) +
+        Math.pow(vertex.y, 2) +
+        Math.pow(vertex.z, 2));
+        norms.push(vertex.x / normLength);
+        norms.push(vertex.y / normLength);
+        norms.push(vertex.z / normLength);
       });
     });
 
     const vertices = new Float32Array( verts );
     const normals = new Float32Array( norms );
-    geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
-    geometry.setAttribute( 'normal', new THREE.BufferAttribute( normals, 3 ) );
+
+    const geometry = new THREE.BufferGeometry();
+    geometry.addAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
+    geometry.addAttribute( 'normal', new THREE.BufferAttribute( normals, 3 ) );
+
     const material = ROS3D.makeColorMaterial( 1, 1, 1, 1 );
     const mesh = new THREE.Mesh( geometry, material );
     mesh.position.x = message.pose.position.x;
@@ -55,6 +58,7 @@ ROS3D.SceneMesh = function(options) {
     ));
 
     this.add(mesh);
+    this.updateMatrixWorld();
 
   }
 };
