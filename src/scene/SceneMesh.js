@@ -53,9 +53,8 @@ ROS3D.SceneMesh = function(options) {
       message.pose.orientation.w
     ));
 
-    viewer.addObject(mesh, false);
+    this.add(mesh);
 
-    objects[message.id] = mesh;
   }
 };
 ROS3D.SceneMesh.prototype.__proto__ = THREE.Object3D.prototype;
