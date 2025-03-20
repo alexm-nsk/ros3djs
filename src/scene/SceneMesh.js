@@ -17,8 +17,8 @@ ROS3D.SceneMesh = function(options) {
 
   options = options || {};
   var message = options.message;
-
-  if (message.id.includes('brick') && message.meshes[0] != undefined) {
+  console.log(message);
+  if (message.id.includes('brick') && message.meshes[0] !== undefined) {
 
     const geometry = new THREE.BufferGeometry();
 
@@ -29,9 +29,9 @@ ROS3D.SceneMesh = function(options) {
         verts.push(message.meshes[0].vertices[v_i].x);
         verts.push(message.meshes[0].vertices[v_i].y);
         verts.push(message.meshes[0].vertices[v_i].z);
-        normLength = Math.sqrt(Math.pow(message.meshes[0].vertices[v_i].x, 2) +
-                               Math.pow(message.meshes[0].vertices[v_i].y, 2) +
-                               Math.pow(message.meshes[0].vertices[v_i].z, 2));
+        const normLength = Math.sqrt(Math.pow(message.meshes[0].vertices[v_i].x, 2) +
+                                     Math.pow(message.meshes[0].vertices[v_i].y, 2) +
+                                     Math.pow(message.meshes[0].vertices[v_i].z, 2));
         norms.push(message.meshes[0].vertices[v_i].x/normLength);
         norms.push(message.meshes[0].vertices[v_i].y/normLength);
         norms.push(message.meshes[0].vertices[v_i].z/normLength);

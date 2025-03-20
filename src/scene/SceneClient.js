@@ -26,8 +26,6 @@ ROS3D.SceneClient = function(options) {
   this.topicName = options.topic;
   this.tfClient = options.tfClient;
   this.rootObject = options.rootObject || new THREE.Object3D();
-  this.path = options.path || '/';
-  this.lifetime = options.lifetime || 0;
 
   // Markers that are displayed (Map ns+id--Marker)
   this.meshes = {};
@@ -60,21 +58,21 @@ ROS3D.SceneClient.prototype.subscribe = function(){
 ROS3D.SceneClient.prototype.processMessage = function(message){
   // remove old marker from Three.Object3D children buffer
 
-  if (message.action === 0) {  // "ADD" or "MODIFY"
-    message.world.collision_objects.forEach (element => {
+  message.world.collision_objects.forEach (element => {
+      if (element.operation === 0) {  // "ADD" or "MODIFY"
 
-      var newMesh = new ROS3D.ScenemeMesh({
+      var newMesh = new ROS3D.SceneMesh({
         message : element
       });
 
-      // this.markers[key] = new ROS3D.SceneNode({
-        //   frameID : message.header.frame_id,
-        //   tfClient : this.tfClient,
-        //   object : newMarker
-        // });
-        // this.rootObject.add(this.markers[key]);
+      this.meshes[key] = new ROS3D.SceneNode({
+          frameID : message.header.frame_id,
+          tfClient : this.tfClient,
+          object : newMarker
+        });
+        this.rootObject.add(this.markers[key]);
+      }
       });
-  }
 
   this.emit('change');
 };
