@@ -37,6 +37,7 @@ ROS3D.SceneMesh = function(options) {
         norms.push(message.meshes[0].vertices[v_i].z/normLength);
       });
     });
+
     const vertices = new Float32Array( verts );
     const normals = new Float32Array( norms );
     geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );

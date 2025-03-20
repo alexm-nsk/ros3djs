@@ -79,7 +79,7 @@ ROS3D.SceneClient.prototype.processMessage = function(message){
   this.emit('change');
 };
 
-ROS3D.SceneClient.prototype.removeMarker = function(key) {
+ROS3D.SceneClient.prototype.removeMesh = function(key) {
   var oldNode = this.markers[key];
   if(!oldNode) {
     return;
@@ -89,5 +89,5 @@ ROS3D.SceneClient.prototype.removeMarker = function(key) {
   oldNode.children.forEach(child => {
     child.dispose();
   });
-  delete(this.markers[key]);
+  delete(this.meshes[key]);
 };
