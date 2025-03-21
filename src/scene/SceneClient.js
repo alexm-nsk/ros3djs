@@ -71,14 +71,24 @@ ROS3D.SceneClient.prototype.processMessage = function(message){
           object : newMesh
         });
         this.rootObject.add(this.meshes[element.id]);
+      } else {
+        this.removeMesh(element.id);
       }
       });
-
+  message.object_colors.forEach( color => {
+    //console.log(this.meshes[color.id]);
+    this.meshes[color.id].children[0].material.color.setRGB(color.color.r, color.color.g, color.color.b);
+    if (color.color.a < 1) {
+      this.meshes[color.id].children[0].material.transparent = true;
+      this.meshes[color.id].children[0].material.opacity = color.color.a;
+    }
+    //console.log(color.id);
+  });
   this.emit('change');
 };
 
 ROS3D.SceneClient.prototype.removeMesh = function(key) {
-  var oldNode = this.markers[key];
+  var oldNode = this.meshes[key];
   if(!oldNode) {
     return;
   }

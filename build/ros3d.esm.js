@@ -46474,94 +46474,363 @@ var DepthCloud = /*@__PURE__*/(function (superclass) {
   return DepthCloud;
 }(THREE.Object3D));
 
-/**
- * @fileOverview
- * @author David Gossow - dgossow@willowgarage.com
- */
+function getDefaultExportFromCjs (x) {
+	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
+}
 
-var Arrow = /*@__PURE__*/(function (superclass) {
-  function Arrow(options) {
-    options = options || {};
-    var origin = options.origin || new THREE.Vector3(0, 0, 0);
-    var direction = options.direction || new THREE.Vector3(1, 0, 0);
-    var length = options.length || 1;
-    var headLength = options.headLength || 0.2;
-    var shaftDiameter = options.shaftDiameter || 0.05;
-    var headDiameter = options.headDiameter || 0.1;
-    var material = options.material || new THREE.MeshBasicMaterial();
+var eventemitter3 = {exports: {}};
 
-    var shaftLength = length - headLength;
+eventemitter3.exports;
 
-    // create and merge geometry
-    var geometry = new THREE.CylinderGeometry(shaftDiameter * 0.5, shaftDiameter * 0.5, shaftLength,
-        12, 1);
-    var m = new THREE.Matrix4();
-    m.setPosition(new THREE.Vector3(0, shaftLength * 0.5, 0));
-    geometry.applyMatrix(m);
+var hasRequiredEventemitter3;
 
-    // create the head
-    var coneGeometry = new THREE.CylinderGeometry(0, headDiameter * 0.5, headLength, 12, 1);
-    m.setPosition(new THREE.Vector3(0, shaftLength + (headLength * 0.5), 0));
-    coneGeometry.applyMatrix(m);
+function requireEventemitter3 () {
+	if (hasRequiredEventemitter3) { return eventemitter3.exports; }
+	hasRequiredEventemitter3 = 1;
+	(function (module) {
 
-    // put the arrow together
-    geometry.merge(coneGeometry);
+		var has = Object.prototype.hasOwnProperty
+		  , prefix = '~';
 
-    superclass.call(this, geometry, material);
+		/**
+		 * Constructor to create a storage for our `EE` objects.
+		 * An `Events` instance is a plain object whose properties are event names.
+		 *
+		 * @constructor
+		 * @private
+		 */
+		function Events() {}
 
-    this.position.copy(origin);
-    this.setDirection(direction);
-  }
+		//
+		// We try to not inherit from `Object.prototype`. In some engines creating an
+		// instance in this way is faster than calling `Object.create(null)` directly.
+		// If `Object.create(null)` is not supported we prefix the event names with a
+		// character to make sure that the built-in object properties are not
+		// overridden or used as an attack vector.
+		//
+		if (Object.create) {
+		  Events.prototype = Object.create(null);
 
-  if ( superclass ) Arrow.__proto__ = superclass;
-  Arrow.prototype = Object.create( superclass && superclass.prototype );
-  Arrow.prototype.constructor = Arrow;
-  /**
-   * Set the direction of this arrow to that of the given vector.
-   *
-   * @param direction - the direction to set this arrow
-   */
-  Arrow.prototype.setDirection = function setDirection (direction) {
-    var axis = new THREE.Vector3();
-    if(direction.x === 0 && direction.z === 0){
-      axis.set(1, 0, 0);
-    } else {
-      axis.set(0, 1, 0).cross(direction);
-    }
-    var radians = Math.acos(new THREE.Vector3(0, 1, 0).dot(direction.clone().normalize()));
-    this.matrix = new THREE.Matrix4().makeRotationAxis(axis.normalize(), radians);
-    this.rotation.setFromRotationMatrix(this.matrix, this.rotation.order);
-  };
-  /**
-   * Set this arrow to be the given length.
-   *
-   * @param length - the new length of the arrow
-   */
-  Arrow.prototype.setLength = function setLength (length) {
-    this.scale.set(length, length, length);
-  };
-  /**
-   * Set the color of this arrow to the given hex value.
-   *
-   * @param hex - the hex value of the color to use
-   */
-  Arrow.prototype.setColor = function setColor (hex) {
-    this.material.color.setHex(hex);
-  };
-  /*
-   * Free memory of elements in this marker.
-   */
-  Arrow.prototype.dispose = function dispose () {
-    if (this.geometry !== undefined) {
-        this.geometry.dispose();
-    }
-    if (this.material !== undefined) {
-        this.material.dispose();
-    }
-  };
+		  //
+		  // This hack is needed because the `__proto__` property is still inherited in
+		  // some old browsers like Android 4, iPhone 5.1, Opera 11 and Safari 5.
+		  //
+		  if (!new Events().__proto__) { prefix = false; }
+		}
 
-  return Arrow;
-}(THREE.Mesh));
+		/**
+		 * Representation of a single event listener.
+		 *
+		 * @param {Function} fn The listener function.
+		 * @param {*} context The context to invoke the listener with.
+		 * @param {Boolean} [once=false] Specify if the listener is a one-time listener.
+		 * @constructor
+		 * @private
+		 */
+		function EE(fn, context, once) {
+		  this.fn = fn;
+		  this.context = context;
+		  this.once = once || false;
+		}
+
+		/**
+		 * Add a listener for a given event.
+		 *
+		 * @param {EventEmitter} emitter Reference to the `EventEmitter` instance.
+		 * @param {(String|Symbol)} event The event name.
+		 * @param {Function} fn The listener function.
+		 * @param {*} context The context to invoke the listener with.
+		 * @param {Boolean} once Specify if the listener is a one-time listener.
+		 * @returns {EventEmitter}
+		 * @private
+		 */
+		function addListener(emitter, event, fn, context, once) {
+		  if (typeof fn !== 'function') {
+		    throw new TypeError('The listener must be a function');
+		  }
+
+		  var listener = new EE(fn, context || emitter, once)
+		    , evt = prefix ? prefix + event : event;
+
+		  if (!emitter._events[evt]) { emitter._events[evt] = listener, emitter._eventsCount++; }
+		  else if (!emitter._events[evt].fn) { emitter._events[evt].push(listener); }
+		  else { emitter._events[evt] = [emitter._events[evt], listener]; }
+
+		  return emitter;
+		}
+
+		/**
+		 * Clear event by name.
+		 *
+		 * @param {EventEmitter} emitter Reference to the `EventEmitter` instance.
+		 * @param {(String|Symbol)} evt The Event name.
+		 * @private
+		 */
+		function clearEvent(emitter, evt) {
+		  if (--emitter._eventsCount === 0) { emitter._events = new Events(); }
+		  else { delete emitter._events[evt]; }
+		}
+
+		/**
+		 * Minimal `EventEmitter` interface that is molded against the Node.js
+		 * `EventEmitter` interface.
+		 *
+		 * @constructor
+		 * @public
+		 */
+		function EventEmitter() {
+		  this._events = new Events();
+		  this._eventsCount = 0;
+		}
+
+		/**
+		 * Return an array listing the events for which the emitter has registered
+		 * listeners.
+		 *
+		 * @returns {Array}
+		 * @public
+		 */
+		EventEmitter.prototype.eventNames = function eventNames() {
+		  var names = []
+		    , events
+		    , name;
+
+		  if (this._eventsCount === 0) { return names; }
+
+		  for (name in (events = this._events)) {
+		    if (has.call(events, name)) { names.push(prefix ? name.slice(1) : name); }
+		  }
+
+		  if (Object.getOwnPropertySymbols) {
+		    return names.concat(Object.getOwnPropertySymbols(events));
+		  }
+
+		  return names;
+		};
+
+		/**
+		 * Return the listeners registered for a given event.
+		 *
+		 * @param {(String|Symbol)} event The event name.
+		 * @returns {Array} The registered listeners.
+		 * @public
+		 */
+		EventEmitter.prototype.listeners = function listeners(event) {
+		  var evt = prefix ? prefix + event : event
+		    , handlers = this._events[evt];
+
+		  if (!handlers) { return []; }
+		  if (handlers.fn) { return [handlers.fn]; }
+
+		  for (var i = 0, l = handlers.length, ee = new Array(l); i < l; i++) {
+		    ee[i] = handlers[i].fn;
+		  }
+
+		  return ee;
+		};
+
+		/**
+		 * Return the number of listeners listening to a given event.
+		 *
+		 * @param {(String|Symbol)} event The event name.
+		 * @returns {Number} The number of listeners.
+		 * @public
+		 */
+		EventEmitter.prototype.listenerCount = function listenerCount(event) {
+		  var evt = prefix ? prefix + event : event
+		    , listeners = this._events[evt];
+
+		  if (!listeners) { return 0; }
+		  if (listeners.fn) { return 1; }
+		  return listeners.length;
+		};
+
+		/**
+		 * Calls each of the listeners registered for a given event.
+		 *
+		 * @param {(String|Symbol)} event The event name.
+		 * @returns {Boolean} `true` if the event had listeners, else `false`.
+		 * @public
+		 */
+		EventEmitter.prototype.emit = function emit(event, a1, a2, a3, a4, a5) {
+		  var arguments$1 = arguments;
+
+		  var evt = prefix ? prefix + event : event;
+
+		  if (!this._events[evt]) { return false; }
+
+		  var listeners = this._events[evt]
+		    , len = arguments.length
+		    , args
+		    , i;
+
+		  if (listeners.fn) {
+		    if (listeners.once) { this.removeListener(event, listeners.fn, undefined, true); }
+
+		    switch (len) {
+		      case 1: return listeners.fn.call(listeners.context), true;
+		      case 2: return listeners.fn.call(listeners.context, a1), true;
+		      case 3: return listeners.fn.call(listeners.context, a1, a2), true;
+		      case 4: return listeners.fn.call(listeners.context, a1, a2, a3), true;
+		      case 5: return listeners.fn.call(listeners.context, a1, a2, a3, a4), true;
+		      case 6: return listeners.fn.call(listeners.context, a1, a2, a3, a4, a5), true;
+		    }
+
+		    for (i = 1, args = new Array(len -1); i < len; i++) {
+		      args[i - 1] = arguments$1[i];
+		    }
+
+		    listeners.fn.apply(listeners.context, args);
+		  } else {
+		    var length = listeners.length
+		      , j;
+
+		    for (i = 0; i < length; i++) {
+		      if (listeners[i].once) { this.removeListener(event, listeners[i].fn, undefined, true); }
+
+		      switch (len) {
+		        case 1: listeners[i].fn.call(listeners[i].context); break;
+		        case 2: listeners[i].fn.call(listeners[i].context, a1); break;
+		        case 3: listeners[i].fn.call(listeners[i].context, a1, a2); break;
+		        case 4: listeners[i].fn.call(listeners[i].context, a1, a2, a3); break;
+		        default:
+		          if (!args) { for (j = 1, args = new Array(len -1); j < len; j++) {
+		            args[j - 1] = arguments$1[j];
+		          } }
+
+		          listeners[i].fn.apply(listeners[i].context, args);
+		      }
+		    }
+		  }
+
+		  return true;
+		};
+
+		/**
+		 * Add a listener for a given event.
+		 *
+		 * @param {(String|Symbol)} event The event name.
+		 * @param {Function} fn The listener function.
+		 * @param {*} [context=this] The context to invoke the listener with.
+		 * @returns {EventEmitter} `this`.
+		 * @public
+		 */
+		EventEmitter.prototype.on = function on(event, fn, context) {
+		  return addListener(this, event, fn, context, false);
+		};
+
+		/**
+		 * Add a one-time listener for a given event.
+		 *
+		 * @param {(String|Symbol)} event The event name.
+		 * @param {Function} fn The listener function.
+		 * @param {*} [context=this] The context to invoke the listener with.
+		 * @returns {EventEmitter} `this`.
+		 * @public
+		 */
+		EventEmitter.prototype.once = function once(event, fn, context) {
+		  return addListener(this, event, fn, context, true);
+		};
+
+		/**
+		 * Remove the listeners of a given event.
+		 *
+		 * @param {(String|Symbol)} event The event name.
+		 * @param {Function} fn Only remove the listeners that match this function.
+		 * @param {*} context Only remove the listeners that have this context.
+		 * @param {Boolean} once Only remove one-time listeners.
+		 * @returns {EventEmitter} `this`.
+		 * @public
+		 */
+		EventEmitter.prototype.removeListener = function removeListener(event, fn, context, once) {
+		  var evt = prefix ? prefix + event : event;
+
+		  if (!this._events[evt]) { return this; }
+		  if (!fn) {
+		    clearEvent(this, evt);
+		    return this;
+		  }
+
+		  var listeners = this._events[evt];
+
+		  if (listeners.fn) {
+		    if (
+		      listeners.fn === fn &&
+		      (!once || listeners.once) &&
+		      (!context || listeners.context === context)
+		    ) {
+		      clearEvent(this, evt);
+		    }
+		  } else {
+		    for (var i = 0, events = [], length = listeners.length; i < length; i++) {
+		      if (
+		        listeners[i].fn !== fn ||
+		        (once && !listeners[i].once) ||
+		        (context && listeners[i].context !== context)
+		      ) {
+		        events.push(listeners[i]);
+		      }
+		    }
+
+		    //
+		    // Reset the array, or remove it completely if we have no more listeners.
+		    //
+		    if (events.length) { this._events[evt] = events.length === 1 ? events[0] : events; }
+		    else { clearEvent(this, evt); }
+		  }
+
+		  return this;
+		};
+
+		/**
+		 * Remove all listeners, or those of the specified event.
+		 *
+		 * @param {(String|Symbol)} [event] The event name.
+		 * @returns {EventEmitter} `this`.
+		 * @public
+		 */
+		EventEmitter.prototype.removeAllListeners = function removeAllListeners(event) {
+		  var evt;
+
+		  if (event) {
+		    evt = prefix ? prefix + event : event;
+		    if (this._events[evt]) { clearEvent(this, evt); }
+		  } else {
+		    this._events = new Events();
+		    this._eventsCount = 0;
+		  }
+
+		  return this;
+		};
+
+		//
+		// Alias methods names because people roll like that.
+		//
+		EventEmitter.prototype.off = EventEmitter.prototype.removeListener;
+		EventEmitter.prototype.addListener = EventEmitter.prototype.on;
+
+		//
+		// Expose the prefix.
+		//
+		EventEmitter.prefixed = prefix;
+
+		//
+		// Allow `EventEmitter` to be imported as module namespace.
+		//
+		EventEmitter.EventEmitter = EventEmitter;
+
+		//
+		// Expose the module.
+		//
+		{
+		  module.exports = EventEmitter;
+		} 
+	} (eventemitter3));
+	return eventemitter3.exports;
+}
+
+var eventemitter3Exports = requireEventemitter3();
+var EventEmitter = /*@__PURE__*/getDefaultExportFromCjs(eventemitter3Exports);
 
 /**
  * @fileOverview
@@ -51899,6 +52168,377 @@ var MeshResource = /*@__PURE__*/(function (superclass) {
 /**
  * @fileOverview
  * @author David Gossow - dgossow@willowgarage.com
+ * @author Russell Toris - rctoris@wpi.edu
+ */
+
+var SceneMesh = /*@__PURE__*/(function (superclass) {
+  function SceneMesh(options) {
+    superclass.call(this);
+
+    options = options || {};
+    var message = options.message;
+    //console.log(message);
+    if (/*message.id.includes('brick') && */message.meshes[0] !== undefined) {
+
+
+      var verts = [];
+      var norms = [];
+      message.meshes[0].triangles.forEach (function (triangle) {
+        triangle.vertex_indices.forEach(function (v_i) {
+          var vertex = message.meshes[0].vertices[v_i];
+          verts.push(vertex.x);
+          verts.push(vertex.y);
+          verts.push(vertex.z);
+          var normLength = Math.sqrt(Math.pow(vertex.x, 2) +
+          Math.pow(vertex.y, 2) +
+          Math.pow(vertex.z, 2));
+          norms.push(vertex.x / normLength);
+          norms.push(vertex.y / normLength);
+          norms.push(vertex.z / normLength);
+        });
+      });
+
+      var vertices = new Float32Array( verts );
+      var normals = new Float32Array( norms );
+
+      var geometry = new THREE.BufferGeometry();
+      geometry.addAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
+      geometry.addAttribute( 'normal', new THREE.BufferAttribute( normals, 3 ) );
+
+      this.material = makeColorMaterial( 1, 1, 1, 1 );
+      this.mesh = new THREE.Mesh( geometry, this.material );
+      this.mesh.position.x = message.pose.position.x;
+      this.mesh.position.y = message.pose.position.y;
+      this.mesh.position.z = message.pose.position.z;
+      this.mesh.rotation.setFromQuaternion(new THREE.Quaternion(
+        message.pose.orientation.x,
+        message.pose.orientation.y,
+        message.pose.orientation.z,
+        message.pose.orientation.w
+      ));
+
+      this.add(this.mesh);
+      this.updateMatrixWorld();
+
+    }
+  }
+
+  if ( superclass ) SceneMesh.__proto__ = superclass;
+  SceneMesh.prototype = Object.create( superclass && superclass.prototype );
+  SceneMesh.prototype.constructor = SceneMesh;
+  /**
+   * Set the pose of this marker to the given values.
+   *
+   * @param pose - the pose to set for this marker
+   */
+  SceneMesh.prototype.setPose = function setPose (pose) {
+    // set position information
+    this.position.x = pose.position.x;
+    this.position.y = pose.position.y;
+    this.position.z = pose.position.z;
+
+    // set the rotation
+    this.quaternion.set(pose.orientation.x, pose.orientation.y,
+        pose.orientation.z, pose.orientation.w);
+    this.quaternion.normalize();
+
+    // update the world
+    this.updateMatrixWorld();
+  };
+  /**
+   * Update this marker.
+   *
+   * @param message - the marker message
+   * @return true on success otherwhise false is returned
+   */
+  SceneMesh.prototype.update = function update (message) {
+    // set the pose and get the color
+    this.setPose(message.pose);
+
+    return true;
+  };
+  /*
+   * Free memory of elements in this marker.
+   */
+  SceneMesh.prototype.dispose = function dispose () {
+    this.children.forEach(function(element) {
+      if (element instanceof MeshResource) {
+        element.children.forEach(function(scene) {
+          if (scene.material !== undefined) {
+            scene.material.dispose();
+          }
+          scene.children.forEach(function(mesh) {
+            if (mesh.geometry !== undefined) {
+              mesh.geometry.dispose();
+            }
+            if (mesh.material !== undefined) {
+              mesh.material.dispose();
+            }
+            scene.remove(mesh);
+          });
+          element.remove(scene);
+        });
+      } else {
+        if (element.geometry !== undefined) {
+            element.geometry.dispose();
+        }
+        if (element.material !== undefined) {
+            element.material.dispose();
+        }
+      }
+      element.parent.remove(element);
+    });
+  };
+
+  return SceneMesh;
+}(THREE.Object3D));
+
+/**
+ * @fileOverview
+ * @author Jihoon Lee - jihoonlee.in@gmail.com
+ * @author Russell Toris - rctoris@wpi.edu
+ */
+
+var SceneNode = /*@__PURE__*/(function (superclass) {
+  function SceneNode(options) {
+    superclass.call(this);
+    options = options || {};
+    this.tfClient = options.tfClient;
+    this.frameID = options.frameID;
+    var object = options.object;
+    this.pose = options.pose || new ROSLIB.Pose();
+
+    // Do not render this object until we receive a TF update
+    this.visible = false;
+
+    // add the model
+    this.add(object);
+
+    // set the inital pose
+    this.updatePose(this.pose);
+
+    // save the TF handler so we can remove it later
+    this.tfUpdate = function(msg) {
+
+      // apply the transform
+      var tf = new ROSLIB.Transform(msg);
+      var poseTransformed = new ROSLIB.Pose(this.pose);
+      poseTransformed.applyTransform(tf);
+
+      // update the world
+      this.updatePose(poseTransformed);
+      this.visible = true;
+    };
+
+    // listen for TF updates
+    this.tfUpdateBound = this.tfUpdate.bind(this);
+    this.tfClient.subscribe(this.frameID, this.tfUpdateBound);
+  }
+
+  if ( superclass ) SceneNode.__proto__ = superclass;
+  SceneNode.prototype = Object.create( superclass && superclass.prototype );
+  SceneNode.prototype.constructor = SceneNode;
+  /**
+   * Set the pose of the associated model.
+   *
+   * @param pose - the pose to update with
+   */
+  SceneNode.prototype.updatePose = function updatePose (pose) {
+    this.position.set( pose.position.x, pose.position.y, pose.position.z );
+    this.quaternion.set(pose.orientation.x, pose.orientation.y,
+        pose.orientation.z, pose.orientation.w);
+    this.updateMatrixWorld(true);
+  };
+  SceneNode.prototype.unsubscribeTf = function unsubscribeTf () {
+    this.tfClient.unsubscribe(this.frameID, this.tfUpdateBound);
+  };
+
+  return SceneNode;
+}(THREE.Object3D));
+
+/**
+ * @fileOverview
+ * @author Russell Toris - rctoris@wpi.edu
+ */
+
+var SceneClient = /*@__PURE__*/(function (EventEmitter3) {
+  function SceneClient(options) {
+    EventEmitter3.call(this);
+    options = options || {};
+    this.ros = options.ros;
+    this.topicName = options.topic;
+    this.tfClient = options.tfClient;
+    this.rootObject = options.rootObject || new THREE.Object3D();
+
+    // Markers that are displayed (Map ns+id--Marker)
+    this.meshes = {};
+    this.rosTopic = undefined;
+    this.updatedTime = {};
+
+    this.processMessageBound = this.processMessage.bind(this);
+    this.subscribe();
+  }
+
+  if ( EventEmitter3 ) SceneClient.__proto__ = EventEmitter3;
+  SceneClient.prototype = Object.create( EventEmitter3 && EventEmitter3.prototype );
+  SceneClient.prototype.constructor = SceneClient;
+  SceneClient.prototype.unsubscribe = function unsubscribe (){
+    if(this.rosTopic){
+      this.rosTopic.unsubscribe(this.processMessageBound);
+    }
+  };
+  SceneClient.prototype.subscribe = function subscribe (){
+    this.unsubscribe();
+
+    // subscribe to the topic
+    this.rosTopic = new ROSLIB.Topic({
+      ros : this.ros,
+      name : '/move_group/monitored_planning_scene',
+      messageType : 'moveit_msgs/PlanningScene'
+    });
+    this.rosTopic.subscribe(this.processMessageBound);
+  };
+  SceneClient.prototype.processMessage = function processMessage (message){
+    var this$1$1 = this;
+
+    // remove old marker from Three.Object3D children buffer
+
+    message.world.collision_objects.forEach (function (element) {
+        if (element.operation === 0) {  // "ADD" or "MODIFY"
+
+        var newMesh = new SceneMesh({
+          message : element
+        });
+
+        this$1$1.meshes[element.id] = new SceneNode({
+            frameID : element.header.frame_id,
+            tfClient : this$1$1.tfClient,
+            object : newMesh
+          });
+          this$1$1.rootObject.add(this$1$1.meshes[element.id]);
+        } else {
+          this$1$1.removeMesh(element.id);
+        }
+        });
+    message.object_colors.forEach( function (color) {
+      //console.log(this.meshes[color.id]);
+      this$1$1.meshes[color.id].children[0].material.color.setRGB(color.color.r, color.color.g, color.color.b);
+      if (color.color.a < 1) {
+        this$1$1.meshes[color.id].children[0].material.transparent = true;
+        this$1$1.meshes[color.id].children[0].material.opacity = color.color.a;
+      }
+      //console.log(color.id);
+    });
+    this.emit('change');
+  };
+  SceneClient.prototype.removeMesh = function removeMesh (key) {
+    var oldNode = this.meshes[key];
+    if(!oldNode) {
+      return;
+    }
+    oldNode.unsubscribeTf();
+    this.rootObject.remove(oldNode);
+    oldNode.children.forEach(function (child) {
+      child.dispose();
+    });
+    delete(this.meshes[key]);
+  };
+
+  return SceneClient;
+}(EventEmitter));
+
+/**
+ * @fileOverview
+ * @author David Gossow - dgossow@willowgarage.com
+ */
+
+var Arrow = /*@__PURE__*/(function (superclass) {
+  function Arrow(options) {
+    options = options || {};
+    var origin = options.origin || new THREE.Vector3(0, 0, 0);
+    var direction = options.direction || new THREE.Vector3(1, 0, 0);
+    var length = options.length || 1;
+    var headLength = options.headLength || 0.2;
+    var shaftDiameter = options.shaftDiameter || 0.05;
+    var headDiameter = options.headDiameter || 0.1;
+    var material = options.material || new THREE.MeshBasicMaterial();
+
+    var shaftLength = length - headLength;
+
+    // create and merge geometry
+    var geometry = new THREE.CylinderGeometry(shaftDiameter * 0.5, shaftDiameter * 0.5, shaftLength,
+        12, 1);
+    var m = new THREE.Matrix4();
+    m.setPosition(new THREE.Vector3(0, shaftLength * 0.5, 0));
+    geometry.applyMatrix(m);
+
+    // create the head
+    var coneGeometry = new THREE.CylinderGeometry(0, headDiameter * 0.5, headLength, 12, 1);
+    m.setPosition(new THREE.Vector3(0, shaftLength + (headLength * 0.5), 0));
+    coneGeometry.applyMatrix(m);
+
+    // put the arrow together
+    geometry.merge(coneGeometry);
+
+    superclass.call(this, geometry, material);
+
+    this.position.copy(origin);
+    this.setDirection(direction);
+  }
+
+  if ( superclass ) Arrow.__proto__ = superclass;
+  Arrow.prototype = Object.create( superclass && superclass.prototype );
+  Arrow.prototype.constructor = Arrow;
+  /**
+   * Set the direction of this arrow to that of the given vector.
+   *
+   * @param direction - the direction to set this arrow
+   */
+  Arrow.prototype.setDirection = function setDirection (direction) {
+    var axis = new THREE.Vector3();
+    if(direction.x === 0 && direction.z === 0){
+      axis.set(1, 0, 0);
+    } else {
+      axis.set(0, 1, 0).cross(direction);
+    }
+    var radians = Math.acos(new THREE.Vector3(0, 1, 0).dot(direction.clone().normalize()));
+    this.matrix = new THREE.Matrix4().makeRotationAxis(axis.normalize(), radians);
+    this.rotation.setFromRotationMatrix(this.matrix, this.rotation.order);
+  };
+  /**
+   * Set this arrow to be the given length.
+   *
+   * @param length - the new length of the arrow
+   */
+  Arrow.prototype.setLength = function setLength (length) {
+    this.scale.set(length, length, length);
+  };
+  /**
+   * Set the color of this arrow to the given hex value.
+   *
+   * @param hex - the hex value of the color to use
+   */
+  Arrow.prototype.setColor = function setColor (hex) {
+    this.material.color.setHex(hex);
+  };
+  /*
+   * Free memory of elements in this marker.
+   */
+  Arrow.prototype.dispose = function dispose () {
+    if (this.geometry !== undefined) {
+        this.geometry.dispose();
+    }
+    if (this.material !== undefined) {
+        this.material.dispose();
+    }
+  };
+
+  return Arrow;
+}(THREE.Mesh));
+
+/**
+ * @fileOverview
+ * @author David Gossow - dgossow@willowgarage.com
  */
 
 var TriangleList = /*@__PURE__*/(function (superclass) {
@@ -53224,364 +53864,6 @@ var InteractiveMarker = /*@__PURE__*/(function (superclass) {
   return InteractiveMarker;
 }(THREE.Object3D));
 
-function getDefaultExportFromCjs (x) {
-	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
-}
-
-var eventemitter3 = {exports: {}};
-
-eventemitter3.exports;
-
-var hasRequiredEventemitter3;
-
-function requireEventemitter3 () {
-	if (hasRequiredEventemitter3) { return eventemitter3.exports; }
-	hasRequiredEventemitter3 = 1;
-	(function (module) {
-
-		var has = Object.prototype.hasOwnProperty
-		  , prefix = '~';
-
-		/**
-		 * Constructor to create a storage for our `EE` objects.
-		 * An `Events` instance is a plain object whose properties are event names.
-		 *
-		 * @constructor
-		 * @private
-		 */
-		function Events() {}
-
-		//
-		// We try to not inherit from `Object.prototype`. In some engines creating an
-		// instance in this way is faster than calling `Object.create(null)` directly.
-		// If `Object.create(null)` is not supported we prefix the event names with a
-		// character to make sure that the built-in object properties are not
-		// overridden or used as an attack vector.
-		//
-		if (Object.create) {
-		  Events.prototype = Object.create(null);
-
-		  //
-		  // This hack is needed because the `__proto__` property is still inherited in
-		  // some old browsers like Android 4, iPhone 5.1, Opera 11 and Safari 5.
-		  //
-		  if (!new Events().__proto__) { prefix = false; }
-		}
-
-		/**
-		 * Representation of a single event listener.
-		 *
-		 * @param {Function} fn The listener function.
-		 * @param {*} context The context to invoke the listener with.
-		 * @param {Boolean} [once=false] Specify if the listener is a one-time listener.
-		 * @constructor
-		 * @private
-		 */
-		function EE(fn, context, once) {
-		  this.fn = fn;
-		  this.context = context;
-		  this.once = once || false;
-		}
-
-		/**
-		 * Add a listener for a given event.
-		 *
-		 * @param {EventEmitter} emitter Reference to the `EventEmitter` instance.
-		 * @param {(String|Symbol)} event The event name.
-		 * @param {Function} fn The listener function.
-		 * @param {*} context The context to invoke the listener with.
-		 * @param {Boolean} once Specify if the listener is a one-time listener.
-		 * @returns {EventEmitter}
-		 * @private
-		 */
-		function addListener(emitter, event, fn, context, once) {
-		  if (typeof fn !== 'function') {
-		    throw new TypeError('The listener must be a function');
-		  }
-
-		  var listener = new EE(fn, context || emitter, once)
-		    , evt = prefix ? prefix + event : event;
-
-		  if (!emitter._events[evt]) { emitter._events[evt] = listener, emitter._eventsCount++; }
-		  else if (!emitter._events[evt].fn) { emitter._events[evt].push(listener); }
-		  else { emitter._events[evt] = [emitter._events[evt], listener]; }
-
-		  return emitter;
-		}
-
-		/**
-		 * Clear event by name.
-		 *
-		 * @param {EventEmitter} emitter Reference to the `EventEmitter` instance.
-		 * @param {(String|Symbol)} evt The Event name.
-		 * @private
-		 */
-		function clearEvent(emitter, evt) {
-		  if (--emitter._eventsCount === 0) { emitter._events = new Events(); }
-		  else { delete emitter._events[evt]; }
-		}
-
-		/**
-		 * Minimal `EventEmitter` interface that is molded against the Node.js
-		 * `EventEmitter` interface.
-		 *
-		 * @constructor
-		 * @public
-		 */
-		function EventEmitter() {
-		  this._events = new Events();
-		  this._eventsCount = 0;
-		}
-
-		/**
-		 * Return an array listing the events for which the emitter has registered
-		 * listeners.
-		 *
-		 * @returns {Array}
-		 * @public
-		 */
-		EventEmitter.prototype.eventNames = function eventNames() {
-		  var names = []
-		    , events
-		    , name;
-
-		  if (this._eventsCount === 0) { return names; }
-
-		  for (name in (events = this._events)) {
-		    if (has.call(events, name)) { names.push(prefix ? name.slice(1) : name); }
-		  }
-
-		  if (Object.getOwnPropertySymbols) {
-		    return names.concat(Object.getOwnPropertySymbols(events));
-		  }
-
-		  return names;
-		};
-
-		/**
-		 * Return the listeners registered for a given event.
-		 *
-		 * @param {(String|Symbol)} event The event name.
-		 * @returns {Array} The registered listeners.
-		 * @public
-		 */
-		EventEmitter.prototype.listeners = function listeners(event) {
-		  var evt = prefix ? prefix + event : event
-		    , handlers = this._events[evt];
-
-		  if (!handlers) { return []; }
-		  if (handlers.fn) { return [handlers.fn]; }
-
-		  for (var i = 0, l = handlers.length, ee = new Array(l); i < l; i++) {
-		    ee[i] = handlers[i].fn;
-		  }
-
-		  return ee;
-		};
-
-		/**
-		 * Return the number of listeners listening to a given event.
-		 *
-		 * @param {(String|Symbol)} event The event name.
-		 * @returns {Number} The number of listeners.
-		 * @public
-		 */
-		EventEmitter.prototype.listenerCount = function listenerCount(event) {
-		  var evt = prefix ? prefix + event : event
-		    , listeners = this._events[evt];
-
-		  if (!listeners) { return 0; }
-		  if (listeners.fn) { return 1; }
-		  return listeners.length;
-		};
-
-		/**
-		 * Calls each of the listeners registered for a given event.
-		 *
-		 * @param {(String|Symbol)} event The event name.
-		 * @returns {Boolean} `true` if the event had listeners, else `false`.
-		 * @public
-		 */
-		EventEmitter.prototype.emit = function emit(event, a1, a2, a3, a4, a5) {
-		  var arguments$1 = arguments;
-
-		  var evt = prefix ? prefix + event : event;
-
-		  if (!this._events[evt]) { return false; }
-
-		  var listeners = this._events[evt]
-		    , len = arguments.length
-		    , args
-		    , i;
-
-		  if (listeners.fn) {
-		    if (listeners.once) { this.removeListener(event, listeners.fn, undefined, true); }
-
-		    switch (len) {
-		      case 1: return listeners.fn.call(listeners.context), true;
-		      case 2: return listeners.fn.call(listeners.context, a1), true;
-		      case 3: return listeners.fn.call(listeners.context, a1, a2), true;
-		      case 4: return listeners.fn.call(listeners.context, a1, a2, a3), true;
-		      case 5: return listeners.fn.call(listeners.context, a1, a2, a3, a4), true;
-		      case 6: return listeners.fn.call(listeners.context, a1, a2, a3, a4, a5), true;
-		    }
-
-		    for (i = 1, args = new Array(len -1); i < len; i++) {
-		      args[i - 1] = arguments$1[i];
-		    }
-
-		    listeners.fn.apply(listeners.context, args);
-		  } else {
-		    var length = listeners.length
-		      , j;
-
-		    for (i = 0; i < length; i++) {
-		      if (listeners[i].once) { this.removeListener(event, listeners[i].fn, undefined, true); }
-
-		      switch (len) {
-		        case 1: listeners[i].fn.call(listeners[i].context); break;
-		        case 2: listeners[i].fn.call(listeners[i].context, a1); break;
-		        case 3: listeners[i].fn.call(listeners[i].context, a1, a2); break;
-		        case 4: listeners[i].fn.call(listeners[i].context, a1, a2, a3); break;
-		        default:
-		          if (!args) { for (j = 1, args = new Array(len -1); j < len; j++) {
-		            args[j - 1] = arguments$1[j];
-		          } }
-
-		          listeners[i].fn.apply(listeners[i].context, args);
-		      }
-		    }
-		  }
-
-		  return true;
-		};
-
-		/**
-		 * Add a listener for a given event.
-		 *
-		 * @param {(String|Symbol)} event The event name.
-		 * @param {Function} fn The listener function.
-		 * @param {*} [context=this] The context to invoke the listener with.
-		 * @returns {EventEmitter} `this`.
-		 * @public
-		 */
-		EventEmitter.prototype.on = function on(event, fn, context) {
-		  return addListener(this, event, fn, context, false);
-		};
-
-		/**
-		 * Add a one-time listener for a given event.
-		 *
-		 * @param {(String|Symbol)} event The event name.
-		 * @param {Function} fn The listener function.
-		 * @param {*} [context=this] The context to invoke the listener with.
-		 * @returns {EventEmitter} `this`.
-		 * @public
-		 */
-		EventEmitter.prototype.once = function once(event, fn, context) {
-		  return addListener(this, event, fn, context, true);
-		};
-
-		/**
-		 * Remove the listeners of a given event.
-		 *
-		 * @param {(String|Symbol)} event The event name.
-		 * @param {Function} fn Only remove the listeners that match this function.
-		 * @param {*} context Only remove the listeners that have this context.
-		 * @param {Boolean} once Only remove one-time listeners.
-		 * @returns {EventEmitter} `this`.
-		 * @public
-		 */
-		EventEmitter.prototype.removeListener = function removeListener(event, fn, context, once) {
-		  var evt = prefix ? prefix + event : event;
-
-		  if (!this._events[evt]) { return this; }
-		  if (!fn) {
-		    clearEvent(this, evt);
-		    return this;
-		  }
-
-		  var listeners = this._events[evt];
-
-		  if (listeners.fn) {
-		    if (
-		      listeners.fn === fn &&
-		      (!once || listeners.once) &&
-		      (!context || listeners.context === context)
-		    ) {
-		      clearEvent(this, evt);
-		    }
-		  } else {
-		    for (var i = 0, events = [], length = listeners.length; i < length; i++) {
-		      if (
-		        listeners[i].fn !== fn ||
-		        (once && !listeners[i].once) ||
-		        (context && listeners[i].context !== context)
-		      ) {
-		        events.push(listeners[i]);
-		      }
-		    }
-
-		    //
-		    // Reset the array, or remove it completely if we have no more listeners.
-		    //
-		    if (events.length) { this._events[evt] = events.length === 1 ? events[0] : events; }
-		    else { clearEvent(this, evt); }
-		  }
-
-		  return this;
-		};
-
-		/**
-		 * Remove all listeners, or those of the specified event.
-		 *
-		 * @param {(String|Symbol)} [event] The event name.
-		 * @returns {EventEmitter} `this`.
-		 * @public
-		 */
-		EventEmitter.prototype.removeAllListeners = function removeAllListeners(event) {
-		  var evt;
-
-		  if (event) {
-		    evt = prefix ? prefix + event : event;
-		    if (this._events[evt]) { clearEvent(this, evt); }
-		  } else {
-		    this._events = new Events();
-		    this._eventsCount = 0;
-		  }
-
-		  return this;
-		};
-
-		//
-		// Alias methods names because people roll like that.
-		//
-		EventEmitter.prototype.off = EventEmitter.prototype.removeListener;
-		EventEmitter.prototype.addListener = EventEmitter.prototype.on;
-
-		//
-		// Expose the prefix.
-		//
-		EventEmitter.prefixed = prefix;
-
-		//
-		// Allow `EventEmitter` to be imported as module namespace.
-		//
-		EventEmitter.EventEmitter = EventEmitter;
-
-		//
-		// Expose the module.
-		//
-		{
-		  module.exports = EventEmitter;
-		} 
-	} (eventemitter3));
-	return eventemitter3.exports;
-}
-
-var eventemitter3Exports = requireEventemitter3();
-var EventEmitter = /*@__PURE__*/getDefaultExportFromCjs(eventemitter3Exports);
-
 /**
  * @fileOverview
  * @author David Gossow - dgossow@willowgarage.com
@@ -53942,69 +54224,6 @@ InteractiveMarkerClient.prototype.eraseIntMarker = function eraseIntMarker (intM
     targetIntMarker.dispose();
   }
 };
-
-/**
- * @fileOverview
- * @author Jihoon Lee - jihoonlee.in@gmail.com
- * @author Russell Toris - rctoris@wpi.edu
- */
-
-var SceneNode = /*@__PURE__*/(function (superclass) {
-  function SceneNode(options) {
-    superclass.call(this);
-    options = options || {};
-    this.tfClient = options.tfClient;
-    this.frameID = options.frameID;
-    var object = options.object;
-    this.pose = options.pose || new ROSLIB.Pose();
-
-    // Do not render this object until we receive a TF update
-    this.visible = false;
-
-    // add the model
-    this.add(object);
-
-    // set the inital pose
-    this.updatePose(this.pose);
-
-    // save the TF handler so we can remove it later
-    this.tfUpdate = function(msg) {
-
-      // apply the transform
-      var tf = new ROSLIB.Transform(msg);
-      var poseTransformed = new ROSLIB.Pose(this.pose);
-      poseTransformed.applyTransform(tf);
-
-      // update the world
-      this.updatePose(poseTransformed);
-      this.visible = true;
-    };
-
-    // listen for TF updates
-    this.tfUpdateBound = this.tfUpdate.bind(this);
-    this.tfClient.subscribe(this.frameID, this.tfUpdateBound);
-  }
-
-  if ( superclass ) SceneNode.__proto__ = superclass;
-  SceneNode.prototype = Object.create( superclass && superclass.prototype );
-  SceneNode.prototype.constructor = SceneNode;
-  /**
-   * Set the pose of the associated model.
-   *
-   * @param pose - the pose to update with
-   */
-  SceneNode.prototype.updatePose = function updatePose (pose) {
-    this.position.set( pose.position.x, pose.position.y, pose.position.z );
-    this.quaternion.set(pose.orientation.x, pose.orientation.y,
-        pose.orientation.z, pose.orientation.w);
-    this.updateMatrixWorld(true);
-  };
-  SceneNode.prototype.unsubscribeTf = function unsubscribeTf () {
-    this.tfClient.unsubscribe(this.frameID, this.tfUpdateBound);
-  };
-
-  return SceneNode;
-}(THREE.Object3D));
 
 /**
  * @fileOverview
@@ -57524,4 +57743,4 @@ Viewer.prototype.resize = function resize (width, height) {
   this.renderer.setSize(width, height);
 };
 
-export { Arrow, Arrow2, Axes, ColorOcTree, DepthCloud, Grid, Highlighter, INTERACTIVE_MARKER_BUTTON, INTERACTIVE_MARKER_BUTTON_CLICK, INTERACTIVE_MARKER_FIXED, INTERACTIVE_MARKER_INHERIT, INTERACTIVE_MARKER_KEEP_ALIVE, INTERACTIVE_MARKER_MENU, INTERACTIVE_MARKER_MENU_SELECT, INTERACTIVE_MARKER_MOUSE_DOWN, INTERACTIVE_MARKER_MOUSE_UP, INTERACTIVE_MARKER_MOVE_3D, INTERACTIVE_MARKER_MOVE_AXIS, INTERACTIVE_MARKER_MOVE_PLANE, INTERACTIVE_MARKER_MOVE_ROTATE, INTERACTIVE_MARKER_MOVE_ROTATE_3D, INTERACTIVE_MARKER_NONE, INTERACTIVE_MARKER_POSE_UPDATE, INTERACTIVE_MARKER_ROTATE_3D, INTERACTIVE_MARKER_ROTATE_AXIS, INTERACTIVE_MARKER_VIEW_FACING, InteractiveMarker, InteractiveMarkerClient, InteractiveMarkerControl, InteractiveMarkerHandle, InteractiveMarkerMenu, LaserScan, MARKER_ARROW, MARKER_CUBE, MARKER_CUBE_LIST, MARKER_CYLINDER, MARKER_LINE_LIST, MARKER_LINE_STRIP, MARKER_MESH_RESOURCE, MARKER_POINTS, MARKER_SPHERE, MARKER_SPHERE_LIST, MARKER_TEXT_VIEW_FACING, MARKER_TRIANGLE_LIST, Marker, MarkerArrayClient, MarkerClient, MeshLoader, MeshResource, MouseHandler, NavSatFix, OcTree, OcTreeClient, OccupancyGrid, OccupancyGridClient, Odometry, OrbitControls, Path, Point, PointCloud2, Points, Polygon, Pose, PoseArray, PoseWithCovariance, SceneNode, TFAxes, TriangleList, Urdf, UrdfClient, Viewer, closestAxisPoint, findClosestPoint, intersectPlane, makeColorMaterial };
+export { Arrow, Arrow2, Axes, ColorOcTree, DepthCloud, Grid, Highlighter, INTERACTIVE_MARKER_BUTTON, INTERACTIVE_MARKER_BUTTON_CLICK, INTERACTIVE_MARKER_FIXED, INTERACTIVE_MARKER_INHERIT, INTERACTIVE_MARKER_KEEP_ALIVE, INTERACTIVE_MARKER_MENU, INTERACTIVE_MARKER_MENU_SELECT, INTERACTIVE_MARKER_MOUSE_DOWN, INTERACTIVE_MARKER_MOUSE_UP, INTERACTIVE_MARKER_MOVE_3D, INTERACTIVE_MARKER_MOVE_AXIS, INTERACTIVE_MARKER_MOVE_PLANE, INTERACTIVE_MARKER_MOVE_ROTATE, INTERACTIVE_MARKER_MOVE_ROTATE_3D, INTERACTIVE_MARKER_NONE, INTERACTIVE_MARKER_POSE_UPDATE, INTERACTIVE_MARKER_ROTATE_3D, INTERACTIVE_MARKER_ROTATE_AXIS, INTERACTIVE_MARKER_VIEW_FACING, InteractiveMarker, InteractiveMarkerClient, InteractiveMarkerControl, InteractiveMarkerHandle, InteractiveMarkerMenu, LaserScan, MARKER_ARROW, MARKER_CUBE, MARKER_CUBE_LIST, MARKER_CYLINDER, MARKER_LINE_LIST, MARKER_LINE_STRIP, MARKER_MESH_RESOURCE, MARKER_POINTS, MARKER_SPHERE, MARKER_SPHERE_LIST, MARKER_TEXT_VIEW_FACING, MARKER_TRIANGLE_LIST, Marker, MarkerArrayClient, MarkerClient, MeshLoader, MeshResource, MouseHandler, NavSatFix, OcTree, OcTreeClient, OccupancyGrid, OccupancyGridClient, Odometry, OrbitControls, Path, Point, PointCloud2, Points, Polygon, Pose, PoseArray, PoseWithCovariance, SceneClient, SceneMesh, SceneNode, TFAxes, TriangleList, Urdf, UrdfClient, Viewer, closestAxisPoint, findClosestPoint, intersectPlane, makeColorMaterial };

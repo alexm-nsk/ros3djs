@@ -17,7 +17,7 @@
     "@rollup/plugin-node-resolve": "^16.0.0",
     "chai": "^4.3.0",
     "debug": "^4.3.0",
-    "grunt": "^1.0.0",
+    "grunt": "^1.6.1",
     "grunt-contrib-clean": "^2.0.0",
     "grunt-contrib-watch": "^1.0.0",
     "grunt-execute": "git+https://github.com/gruntjs-updater/grunt-execute.git#peerDep",
