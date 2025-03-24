@@ -52416,9 +52416,8 @@ var SceneClient = /*@__PURE__*/(function (EventEmitter3) {
           });
           this$1$1.rootObject.add(this$1$1.meshes[element.id]);
         }
-        if(element.pose.position.x !== 0 && element.pose.position.y !== 0 && element.pose.position.z !== 0) {
-          this$1$1.meshes[element.id].children[0].setPose(element.pose);
-        }
+        this$1$1.meshes[element.id].children[0].setPose(element.pose);
+        if(element.pose.position.x !== 0 && element.pose.position.y !== 0 && element.pose.position.z !== 0) ;
       } else {
         this$1$1.removeMesh(element.id);
       }

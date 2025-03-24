@@ -87,8 +87,8 @@ ROS3D.SceneClient.prototype.processMessage = function(message){
         });
         this.rootObject.add(this.meshes[element.id]);
       }
+      this.meshes[element.id].children[0].setPose(element.pose);
       if(element.pose.position.x !== 0 && element.pose.position.y !== 0 && element.pose.position.z !== 0) {
-        this.meshes[element.id].children[0].setPose(element.pose);
       }
     } else {
       this.removeMesh(element.id);

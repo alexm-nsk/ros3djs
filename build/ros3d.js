@@ -52469,9 +52469,8 @@ var ROS3D = (function (exports, ROSLIB) {
 	          });
 	          this.rootObject.add(this.meshes[element.id]);
 	        }
-	        if(element.pose.position.x !== 0 && element.pose.position.y !== 0 && element.pose.position.z !== 0) {
-	          this.meshes[element.id].children[0].setPose(element.pose);
-	        }
+	        this.meshes[element.id].children[0].setPose(element.pose);
+	        if(element.pose.position.x !== 0 && element.pose.position.y !== 0 && element.pose.position.z !== 0) ;
 	      } else {
 	        this.removeMesh(element.id);
 	      }
