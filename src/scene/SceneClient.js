@@ -4,21 +4,19 @@
  */
 
 /**
- * A marker client that listens to a given marker topic.
+ * A scene client that listens to a given scene topic.
  *
  * Emits the following events:
  *
- *  * 'change' - there was an update or change in the marker
+ *  * 'change' - there was an update or change in the mesh
  *
  * @constructor
  * @param options - object with following keys:
  *
  *   * ros - the ROSLIB.Ros connection handle
- *   * topic - the marker topic to listen to
+ *   * topic - the scene topic to listen to
  *   * tfClient - the TF client handle to use
- *   * rootObject (optional) - the root object to add this marker to
- *   * path (optional) - the base path to any meshes that will be loaded
- *   * lifetime - the lifetime of marker
+ *   * rootObject (optional) - the root object to add this mesh to
  */
 ROS3D.SceneClient = function(options) {
   options = options || {};
@@ -27,7 +25,7 @@ ROS3D.SceneClient = function(options) {
   this.tfClient = options.tfClient;
   this.rootObject = options.rootObject || new THREE.Object3D();
 
-  // Markers that are displayed (Map ns+id--Marker)
+  // meshes that are displayed (Map ns+id--mesh)
   this.meshes = {};
   this.rosTopic = undefined;
   this.updatedTime = {};
@@ -56,7 +54,6 @@ ROS3D.SceneClient.prototype.subscribe = function(){
 };
 
 ROS3D.SceneClient.prototype.processMessage = function(message){
-  // remove old marker from Three.Object3D children buffer
 
   message.world.collision_objects.forEach (element => {
       if (element.operation === 0) {  // "ADD" or "MODIFY"
@@ -71,18 +68,17 @@ ROS3D.SceneClient.prototype.processMessage = function(message){
           object : newMesh
         });
         this.rootObject.add(this.meshes[element.id]);
+        this.meshes[element.id].updatePose(element.pose);
       } else {
         this.removeMesh(element.id);
       }
       });
   message.object_colors.forEach( color => {
-    //console.log(this.meshes[color.id]);
     this.meshes[color.id].children[0].material.color.setRGB(color.color.r, color.color.g, color.color.b);
     if (color.color.a < 1) {
       this.meshes[color.id].children[0].material.transparent = true;
       this.meshes[color.id].children[0].material.opacity = color.color.a;
     }
-    //console.log(color.id);
   });
   this.emit('change');
 };

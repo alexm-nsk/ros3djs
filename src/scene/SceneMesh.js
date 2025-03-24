@@ -5,7 +5,7 @@
  */
 
 /**
- * A SceneMesh can convert a ROS marker message into a THREE object.
+ * A SceneMesh can convert a ROS scene message into a THREE object.
  *
  * @constructor
  * @param options - object with following keys:
@@ -47,15 +47,15 @@ ROS3D.SceneMesh = function(options) {
 
     this.material = ROS3D.makeColorMaterial( 1, 1, 1, 1 );
     this.mesh = new THREE.Mesh( geometry, this.material );
-    this.mesh.position.x = message.pose.position.x;
-    this.mesh.position.y = message.pose.position.y;
-    this.mesh.position.z = message.pose.position.z;
-    this.mesh.rotation.setFromQuaternion(new THREE.Quaternion(
-      message.pose.orientation.x,
-      message.pose.orientation.y,
-      message.pose.orientation.z,
-      message.pose.orientation.w
-    ));
+    // this.mesh.position.x = message.pose.position.x;
+    // this.mesh.position.y = message.pose.position.y;
+    // this.mesh.position.z = message.pose.position.z;
+    // this.mesh.rotation.setFromQuaternion(new THREE.Quaternion(
+    //   message.pose.orientation.x,
+    //   message.pose.orientation.y,
+    //   message.pose.orientation.z,
+    //   message.pose.orientation.w
+    // ));
 
     this.add(this.mesh);
     this.updateMatrixWorld();
@@ -65,9 +65,9 @@ ROS3D.SceneMesh = function(options) {
 ROS3D.SceneMesh.prototype.__proto__ = THREE.Object3D.prototype;
 
 /**
- * Set the pose of this marker to the given values.
+ * Set the pose of this mesh to the given values.
  *
- * @param pose - the pose to set for this marker
+ * @param pose - the pose to set for this mesh
  */
 ROS3D.SceneMesh.prototype.setPose = function(pose) {
   // set position information
@@ -85,9 +85,9 @@ ROS3D.SceneMesh.prototype.setPose = function(pose) {
 };
 
 /**
- * Update this marker.
+ * Update this mesh.
  *
- * @param message - the marker message
+ * @param message - the mesh message
  * @return true on success otherwhise false is returned
  */
 ROS3D.SceneMesh.prototype.update = function(message) {
@@ -98,7 +98,7 @@ ROS3D.SceneMesh.prototype.update = function(message) {
 };
 
 /*
- * Free memory of elements in this marker.
+ * Free memory of elements in this mesh.
  */
 ROS3D.SceneMesh.prototype.dispose = function() {
   this.children.forEach(function(element) {

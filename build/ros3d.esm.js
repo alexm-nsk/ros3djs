@@ -52207,15 +52207,15 @@ var SceneMesh = /*@__PURE__*/(function (superclass) {
 
       this.material = makeColorMaterial( 1, 1, 1, 1 );
       this.mesh = new THREE.Mesh( geometry, this.material );
-      this.mesh.position.x = message.pose.position.x;
-      this.mesh.position.y = message.pose.position.y;
-      this.mesh.position.z = message.pose.position.z;
-      this.mesh.rotation.setFromQuaternion(new THREE.Quaternion(
-        message.pose.orientation.x,
-        message.pose.orientation.y,
-        message.pose.orientation.z,
-        message.pose.orientation.w
-      ));
+      // this.mesh.position.x = message.pose.position.x;
+      // this.mesh.position.y = message.pose.position.y;
+      // this.mesh.position.z = message.pose.position.z;
+      // this.mesh.rotation.setFromQuaternion(new THREE.Quaternion(
+      //   message.pose.orientation.x,
+      //   message.pose.orientation.y,
+      //   message.pose.orientation.z,
+      //   message.pose.orientation.w
+      // ));
 
       this.add(this.mesh);
       this.updateMatrixWorld();
@@ -52227,9 +52227,9 @@ var SceneMesh = /*@__PURE__*/(function (superclass) {
   SceneMesh.prototype = Object.create( superclass && superclass.prototype );
   SceneMesh.prototype.constructor = SceneMesh;
   /**
-   * Set the pose of this marker to the given values.
+   * Set the pose of this mesh to the given values.
    *
-   * @param pose - the pose to set for this marker
+   * @param pose - the pose to set for this mesh
    */
   SceneMesh.prototype.setPose = function setPose (pose) {
     // set position information
@@ -52246,9 +52246,9 @@ var SceneMesh = /*@__PURE__*/(function (superclass) {
     this.updateMatrixWorld();
   };
   /**
-   * Update this marker.
+   * Update this mesh.
    *
-   * @param message - the marker message
+   * @param message - the mesh message
    * @return true on success otherwhise false is returned
    */
   SceneMesh.prototype.update = function update (message) {
@@ -52258,7 +52258,7 @@ var SceneMesh = /*@__PURE__*/(function (superclass) {
     return true;
   };
   /*
-   * Free memory of elements in this marker.
+   * Free memory of elements in this mesh.
    */
   SceneMesh.prototype.dispose = function dispose () {
     this.children.forEach(function(element) {
@@ -52370,7 +52370,7 @@ var SceneClient = /*@__PURE__*/(function (EventEmitter3) {
     this.tfClient = options.tfClient;
     this.rootObject = options.rootObject || new THREE.Object3D();
 
-    // Markers that are displayed (Map ns+id--Marker)
+    // meshes that are displayed (Map ns+id--mesh)
     this.meshes = {};
     this.rosTopic = undefined;
     this.updatedTime = {};
@@ -52401,7 +52401,6 @@ var SceneClient = /*@__PURE__*/(function (EventEmitter3) {
   SceneClient.prototype.processMessage = function processMessage (message){
     var this$1$1 = this;
 
-    // remove old marker from Three.Object3D children buffer
 
     message.world.collision_objects.forEach (function (element) {
         if (element.operation === 0) {  // "ADD" or "MODIFY"
@@ -52416,18 +52415,17 @@ var SceneClient = /*@__PURE__*/(function (EventEmitter3) {
             object : newMesh
           });
           this$1$1.rootObject.add(this$1$1.meshes[element.id]);
+          this$1$1.meshes[element.id].updatePose(element.pose);
         } else {
           this$1$1.removeMesh(element.id);
         }
         });
     message.object_colors.forEach( function (color) {
-      //console.log(this.meshes[color.id]);
       this$1$1.meshes[color.id].children[0].material.color.setRGB(color.color.r, color.color.g, color.color.b);
       if (color.color.a < 1) {
         this$1$1.meshes[color.id].children[0].material.transparent = true;
         this$1$1.meshes[color.id].children[0].material.opacity = color.color.a;
       }
-      //console.log(color.id);
     });
     this.emit('change');
   };
@@ -56672,7 +56670,10 @@ var Urdf = /*@__PURE__*/(function (superclass) {
   Urdf.prototype.createShapeMesh = function createShapeMesh (visual, options) {
     var colorMaterial = null;
     if (!colorMaterial) {
-      colorMaterial = makeColorMaterial(visual.material.color.r, visual.material.color.g, visual.material.color.b, visual.material.color.a);
+      colorMaterial = makeColorMaterial(visual.material.color.r,
+                                              visual.material.color.g,
+                                              visual.material.color.b,
+                                              visual.material.color.a);
     }
     var shapeMesh;
     // Create a shape

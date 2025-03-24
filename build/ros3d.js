@@ -52200,7 +52200,7 @@ var ROS3D = (function (exports, ROSLIB) {
 	class SceneMesh extends THREE.Object3D {
 
 	  /**
-	   * A SceneMesh can convert a ROS marker message into a THREE object.
+	   * A SceneMesh can convert a ROS scene message into a THREE object.
 	   *
 	   * @constructor
 	   * @param options - object with following keys:
@@ -52242,15 +52242,15 @@ var ROS3D = (function (exports, ROSLIB) {
 
 	      this.material = makeColorMaterial( 1, 1, 1, 1 );
 	      this.mesh = new THREE.Mesh( geometry, this.material );
-	      this.mesh.position.x = message.pose.position.x;
-	      this.mesh.position.y = message.pose.position.y;
-	      this.mesh.position.z = message.pose.position.z;
-	      this.mesh.rotation.setFromQuaternion(new THREE.Quaternion(
-	        message.pose.orientation.x,
-	        message.pose.orientation.y,
-	        message.pose.orientation.z,
-	        message.pose.orientation.w
-	      ));
+	      // this.mesh.position.x = message.pose.position.x;
+	      // this.mesh.position.y = message.pose.position.y;
+	      // this.mesh.position.z = message.pose.position.z;
+	      // this.mesh.rotation.setFromQuaternion(new THREE.Quaternion(
+	      //   message.pose.orientation.x,
+	      //   message.pose.orientation.y,
+	      //   message.pose.orientation.z,
+	      //   message.pose.orientation.w
+	      // ));
 
 	      this.add(this.mesh);
 	      this.updateMatrixWorld();
@@ -52259,9 +52259,9 @@ var ROS3D = (function (exports, ROSLIB) {
 	  };
 
 	  /**
-	   * Set the pose of this marker to the given values.
+	   * Set the pose of this mesh to the given values.
 	   *
-	   * @param pose - the pose to set for this marker
+	   * @param pose - the pose to set for this mesh
 	   */
 	  setPose(pose) {
 	    // set position information
@@ -52279,9 +52279,9 @@ var ROS3D = (function (exports, ROSLIB) {
 	  };
 
 	  /**
-	   * Update this marker.
+	   * Update this mesh.
 	   *
-	   * @param message - the marker message
+	   * @param message - the mesh message
 	   * @return true on success otherwhise false is returned
 	   */
 	  update(message) {
@@ -52292,7 +52292,7 @@ var ROS3D = (function (exports, ROSLIB) {
 	  };
 
 	  /*
-	   * Free memory of elements in this marker.
+	   * Free memory of elements in this mesh.
 	   */
 	  dispose() {
 	    this.children.forEach(function(element) {
@@ -52404,21 +52404,19 @@ var ROS3D = (function (exports, ROSLIB) {
 	class SceneClient extends EventEmitter {
 
 	  /**
-	   * A marker client that listens to a given marker topic.
+	   * A scene client that listens to a given scene topic.
 	   *
 	   * Emits the following events:
 	   *
-	   *  * 'change' - there was an update or change in the marker
+	   *  * 'change' - there was an update or change in the mesh
 	   *
 	   * @constructor
 	   * @param options - object with following keys:
 	   *
 	   *   * ros - the ROSLIB.Ros connection handle
-	   *   * topic - the marker topic to listen to
+	   *   * topic - the scene topic to listen to
 	   *   * tfClient - the TF client handle to use
-	   *   * rootObject (optional) - the root object to add this marker to
-	   *   * path (optional) - the base path to any meshes that will be loaded
-	   *   * lifetime - the lifetime of marker
+	   *   * rootObject (optional) - the root object to add this mesh to
 	   */
 	  constructor(options) {
 	    super();
@@ -52428,7 +52426,7 @@ var ROS3D = (function (exports, ROSLIB) {
 	    this.tfClient = options.tfClient;
 	    this.rootObject = options.rootObject || new THREE.Object3D();
 
-	    // Markers that are displayed (Map ns+id--Marker)
+	    // meshes that are displayed (Map ns+id--mesh)
 	    this.meshes = {};
 	    this.rosTopic = undefined;
 	    this.updatedTime = {};
@@ -52456,7 +52454,6 @@ var ROS3D = (function (exports, ROSLIB) {
 	  };
 
 	  processMessage(message){
-	    // remove old marker from Three.Object3D children buffer
 
 	    message.world.collision_objects.forEach (element => {
 	        if (element.operation === 0) {  // "ADD" or "MODIFY"
@@ -52471,18 +52468,17 @@ var ROS3D = (function (exports, ROSLIB) {
 	            object : newMesh
 	          });
 	          this.rootObject.add(this.meshes[element.id]);
+	          this.meshes[element.id].updatePose(element.pose);
 	        } else {
 	          this.removeMesh(element.id);
 	        }
 	        });
 	    message.object_colors.forEach( color => {
-	      //console.log(this.meshes[color.id]);
 	      this.meshes[color.id].children[0].material.color.setRGB(color.color.r, color.color.g, color.color.b);
 	      if (color.color.a < 1) {
 	        this.meshes[color.id].children[0].material.transparent = true;
 	        this.meshes[color.id].children[0].material.opacity = color.color.a;
 	      }
-	      //console.log(color.id);
 	    });
 	    this.emit('change');
 	  };
@@ -57173,7 +57169,10 @@ var ROS3D = (function (exports, ROSLIB) {
 	  createShapeMesh(visual, options) {
 	    var colorMaterial = null;
 	    if (!colorMaterial) {
-	      colorMaterial = makeColorMaterial(visual.material.color.r, visual.material.color.g, visual.material.color.b, visual.material.color.a);
+	      colorMaterial = makeColorMaterial(visual.material.color.r,
+	                                              visual.material.color.g,
+	                                              visual.material.color.b,
+	                                              visual.material.color.a);
 	    }
 	    var shapeMesh;
 	    // Create a shape
