@@ -52191,8 +52191,6 @@ var MeshResource = /*@__PURE__*/(function (superclass) {
 
 /**
  * @fileOverview
- * @author David Gossow - dgossow@willowgarage.com
- * @author Russell Toris - rctoris@wpi.edu
  */
 
 var SceneMesh = /*@__PURE__*/(function (superclass) {
@@ -52223,11 +52221,11 @@ var SceneMesh = /*@__PURE__*/(function (superclass) {
       });
 
       var vertices = new Float32Array( verts );
-      var normals = new Float32Array( norms );
 
       var geometry = new THREE.BufferGeometry();
       geometry.addAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
-      geometry.addAttribute( 'normal', new THREE.BufferAttribute( normals, 3 ) );
+      //geometry.addAttribute( 'normal', new THREE.BufferAttribute( normals, 3 ) );
+      geometry.computeVertexNormals();
 
       this.material = makeColorMaterial( 1, 1, 1, 1 );
       this.mesh = new THREE.Mesh( geometry, this.material );
@@ -52382,7 +52380,6 @@ var SceneNode = /*@__PURE__*/(function (superclass) {
 
 /**
  * @fileOverview
- * @author Russell Toris - rctoris@wpi.edu
  */
 
 var SceneClient = /*@__PURE__*/(function (EventEmitter3) {

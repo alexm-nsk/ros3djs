@@ -52193,8 +52193,6 @@ var ROS3D = (function (exports, ROSLIB) {
 
 	/**
 	 * @fileOverview
-	 * @author David Gossow - dgossow@willowgarage.com
-	 * @author Russell Toris - rctoris@wpi.edu
 	 */
 
 	class SceneMesh extends THREE.Object3D {
@@ -52234,11 +52232,11 @@ var ROS3D = (function (exports, ROSLIB) {
 	      });
 
 	      const vertices = new Float32Array( verts );
-	      const normals = new Float32Array( norms );
 
 	      const geometry = new THREE.BufferGeometry();
 	      geometry.addAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
-	      geometry.addAttribute( 'normal', new THREE.BufferAttribute( normals, 3 ) );
+	      //geometry.addAttribute( 'normal', new THREE.BufferAttribute( normals, 3 ) );
+	      geometry.computeVertexNormals();
 
 	      this.material = makeColorMaterial( 1, 1, 1, 1 );
 	      this.mesh = new THREE.Mesh( geometry, this.material );
@@ -52398,7 +52396,6 @@ var ROS3D = (function (exports, ROSLIB) {
 
 	/**
 	 * @fileOverview
-	 * @author Russell Toris - rctoris@wpi.edu
 	 */
 
 	class SceneClient extends EventEmitter {

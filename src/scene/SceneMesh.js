@@ -37,23 +37,15 @@ ROS3D.SceneMesh = function(options) {
     });
 
     const vertices = new Float32Array( verts );
-    const normals = new Float32Array( norms );
+    //const normals = new Float32Array( norms );
 
     const geometry = new THREE.BufferGeometry();
     geometry.addAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
-    geometry.addAttribute( 'normal', new THREE.BufferAttribute( normals, 3 ) );
+    //geometry.addAttribute( 'normal', new THREE.BufferAttribute( normals, 3 ) );
+    geometry.computeVertexNormals();
 
     this.material = ROS3D.makeColorMaterial( 1, 1, 1, 1 );
     this.mesh = new THREE.Mesh( geometry, this.material );
-    // this.mesh.position.x = message.pose.position.x;
-    // this.mesh.position.y = message.pose.position.y;
-    // this.mesh.position.z = message.pose.position.z;
-    // this.mesh.rotation.setFromQuaternion(new THREE.Quaternion(
-    //   message.pose.orientation.x,
-    //   message.pose.orientation.y,
-    //   message.pose.orientation.z,
-    //   message.pose.orientation.w
-    // ));
 
     this.add(this.mesh);
     this.updateMatrixWorld();
