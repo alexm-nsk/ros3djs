@@ -52402,24 +52402,44 @@ var SceneClient = /*@__PURE__*/(function (EventEmitter3) {
     var this$1$1 = this;
 
 
+    message.robot_state.attached_collision_objects.forEach (function (element) {
+      console.log(element);
+      if (element.object.operation === 0) {  // "ADD" or "MODIFY"
+
+      var newMesh = new SceneMesh({
+        message : element.object
+      });
+
+      this$1$1.meshes[element.object.id] = new SceneNode({
+          frameID : element.object.header.frame_id,
+          tfClient : this$1$1.tfClient,
+          object : newMesh
+        });
+        this$1$1.rootObject.add(this$1$1.meshes[element.object.id]);
+        this$1$1.meshes[element.object.id].updatePose(element.object.pose);
+      } else {
+        this$1$1.removeMesh(element.object.id);
+      }
+    });
+
     message.world.collision_objects.forEach (function (element) {
-        if (element.operation === 0) {  // "ADD" or "MODIFY"
+      if (element.operation === 0) {  // "ADD" or "MODIFY"
 
-        var newMesh = new SceneMesh({
-          message : element
-        });
+      var newMesh = new SceneMesh({
+        message : element
+      });
 
-        this$1$1.meshes[element.id] = new SceneNode({
-            frameID : element.header.frame_id,
-            tfClient : this$1$1.tfClient,
-            object : newMesh
-          });
-          this$1$1.rootObject.add(this$1$1.meshes[element.id]);
-          this$1$1.meshes[element.id].updatePose(element.pose);
-        } else {
-          this$1$1.removeMesh(element.id);
-        }
+      this$1$1.meshes[element.id] = new SceneNode({
+          frameID : element.header.frame_id,
+          tfClient : this$1$1.tfClient,
+          object : newMesh
         });
+        this$1$1.rootObject.add(this$1$1.meshes[element.id]);
+        this$1$1.meshes[element.id].updatePose(element.pose);
+      } else {
+        this$1$1.removeMesh(element.id);
+      }
+    });
     message.object_colors.forEach( function (color) {
       this$1$1.meshes[color.id].children[0].material.color.setRGB(color.color.r, color.color.g, color.color.b);
       if (color.color.a < 1) {

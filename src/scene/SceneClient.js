@@ -55,24 +55,44 @@ ROS3D.SceneClient.prototype.subscribe = function(){
 
 ROS3D.SceneClient.prototype.processMessage = function(message){
 
+  message.robot_state.attached_collision_objects.forEach (element => {
+    console.log(element);
+    if (element.object.operation === 0) {  // "ADD" or "MODIFY"
+
+    var newMesh = new ROS3D.SceneMesh({
+      message : element.object
+    });
+
+    this.meshes[element.object.id] = new ROS3D.SceneNode({
+        frameID : element.object.header.frame_id,
+        tfClient : this.tfClient,
+        object : newMesh
+      });
+      this.rootObject.add(this.meshes[element.object.id]);
+      this.meshes[element.object.id].updatePose(element.object.pose);
+    } else {
+      this.removeMesh(element.object.id);
+    }
+  });
+
   message.world.collision_objects.forEach (element => {
-      if (element.operation === 0) {  // "ADD" or "MODIFY"
+    if (element.operation === 0) {  // "ADD" or "MODIFY"
 
-      var newMesh = new ROS3D.SceneMesh({
-        message : element
-      });
+    var newMesh = new ROS3D.SceneMesh({
+      message : element
+    });
 
-      this.meshes[element.id] = new ROS3D.SceneNode({
-          frameID : element.header.frame_id,
-          tfClient : this.tfClient,
-          object : newMesh
-        });
-        this.rootObject.add(this.meshes[element.id]);
-        this.meshes[element.id].updatePose(element.pose);
-      } else {
-        this.removeMesh(element.id);
-      }
+    this.meshes[element.id] = new ROS3D.SceneNode({
+        frameID : element.header.frame_id,
+        tfClient : this.tfClient,
+        object : newMesh
       });
+      this.rootObject.add(this.meshes[element.id]);
+      this.meshes[element.id].updatePose(element.pose);
+    } else {
+      this.removeMesh(element.id);
+    }
+  });
   message.object_colors.forEach( color => {
     this.meshes[color.id].children[0].material.color.setRGB(color.color.r, color.color.g, color.color.b);
     if (color.color.a < 1) {
