@@ -52456,7 +52456,6 @@ var ROS3D = (function (exports, ROSLIB) {
 	  processMessage(message){
 
 	    message.robot_state.attached_collision_objects.forEach (element => {
-	      console.log(element);
 	      if (element.object.operation === 0) {  // "ADD" or "MODIFY"
 
 	      var newMesh = new SceneMesh({

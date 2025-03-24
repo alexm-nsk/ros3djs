@@ -52403,7 +52403,6 @@ var SceneClient = /*@__PURE__*/(function (EventEmitter3) {
 
 
     message.robot_state.attached_collision_objects.forEach (function (element) {
-      console.log(element);
       if (element.object.operation === 0) {  // "ADD" or "MODIFY"
 
       var newMesh = new SceneMesh({
