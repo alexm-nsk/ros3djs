@@ -15,9 +15,7 @@ ROS3D.SceneMesh = function(options) {
 
   options = options || {};
   var message = options.message;
-  //console.log(message);
-  if (/*message.id.includes('brick') && */message.meshes[0] !== undefined) {
-
+  if (message.meshes[0] !== undefined) {
 
     var verts = []
     var norms = []
