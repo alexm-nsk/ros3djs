@@ -52199,26 +52199,11 @@ var SceneMesh = /*@__PURE__*/(function (superclass) {
 
     options = options || {};
     var message = options.message;
-    //console.log(message);
-    if (/*message.id.includes('brick') && */message.meshes[0] !== undefined) {
-
+    if (message.meshes[0] !== undefined) {
 
       var verts = [];
       var indices = [];
-      // message.meshes[0].triangles.forEach (triangle => {
-      //   triangle.vertex_indices.forEach(v_i => {
-      //     const vertex = message.meshes[0].vertices[v_i]
-      //     verts.push(vertex.x);
-      //     verts.push(vertex.y);
-      //     verts.push(vertex.z);
-      //     const normLength = Math.sqrt(Math.pow(vertex.x, 2) +
-      //     Math.pow(vertex.y, 2) +
-      //     Math.pow(vertex.z, 2));
-      //     norms.push(vertex.x / normLength);
-      //     norms.push(vertex.y / normLength);
-      //     norms.push(vertex.z / normLength);
-      //   });
-      // });
+
       message.meshes[0].triangles.forEach (function (triangle) {
         indices.push.apply(indices, triangle.vertex_indices);
       });
@@ -52228,12 +52213,11 @@ var SceneMesh = /*@__PURE__*/(function (superclass) {
       });
 
       var vertices = new Float32Array( verts );
-      //const normals = new Float32Array( norms );
 
       var geometry = new THREE.BufferGeometry();
       geometry.addAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
       geometry.setIndex(indices);
-      //geometry.addAttribute( 'normal', new THREE.BufferAttribute( normals, 3 ) );
+
       geometry.computeVertexNormals();
 
       this.material = makeColorMaterial( 1, 1, 1, 1 );
