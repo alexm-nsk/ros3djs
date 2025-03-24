@@ -52410,14 +52410,14 @@ var SceneClient = /*@__PURE__*/(function (EventEmitter3) {
     message.robot_state.attached_collision_objects.forEach (function (element) {
       if (element.object.operation === 0) {  // "ADD" or "MODIFY"
 
-      var newMesh = new SceneMesh({
-        message : element.object
-      });
+        var newMesh = new SceneMesh({
+          message : element.object
+        });
 
-      this$1$1.meshes[element.object.id] = new SceneNode({
-          frameID : element.object.header.frame_id,
-          tfClient : this$1$1.tfClient,
-          object : newMesh
+        this$1$1.meshes[element.object.id] = new SceneNode({
+            frameID : element.object.header.frame_id,
+            tfClient : this$1$1.tfClient,
+            object : newMesh
         });
         this$1$1.rootObject.add(this$1$1.meshes[element.object.id]);
         this$1$1.meshes[element.object.id].updatePose(element.object.pose);
@@ -52429,16 +52429,21 @@ var SceneClient = /*@__PURE__*/(function (EventEmitter3) {
     message.world.collision_objects.forEach (function (element) {
       if (element.operation === 0) {  // "ADD" or "MODIFY"
 
-      var newMesh = new SceneMesh({
-        message : element
-      });
-
-      this$1$1.meshes[element.id] = new SceneNode({
-          frameID : element.header.frame_id,
-          tfClient : this$1$1.tfClient,
-          object : newMesh
+        var newMesh = new SceneMesh({
+          message : element
         });
-        this$1$1.rootObject.add(this$1$1.meshes[element.id]);
+        if(!(element.id in this$1$1.meshes)) {
+          this$1$1.meshes[element.id] = new SceneNode({
+            frameID : element.header.frame_id,
+            tfClient : this$1$1.tfClient,
+            object : newMesh
+          });
+          this$1$1.rootObject.add(this$1$1.meshes[element.id]);
+        }
+        else {
+          console.log(element.header.frame_id);
+          console.log(element.id);
+        }
         this$1$1.meshes[element.id].updatePose(element.pose);
       } else {
         this$1$1.removeMesh(element.id);

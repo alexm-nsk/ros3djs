@@ -57,14 +57,14 @@ ROS3D.SceneClient.prototype.processMessage = function(message){
   message.robot_state.attached_collision_objects.forEach (element => {
     if (element.object.operation === 0) {  // "ADD" or "MODIFY"
 
-    var newMesh = new ROS3D.SceneMesh({
-      message : element.object
-    });
+      var newMesh = new ROS3D.SceneMesh({
+        message : element.object
+      });
 
-    this.meshes[element.object.id] = new ROS3D.SceneNode({
-        frameID : element.object.header.frame_id,
-        tfClient : this.tfClient,
-        object : newMesh
+      this.meshes[element.object.id] = new ROS3D.SceneNode({
+          frameID : element.object.header.frame_id,
+          tfClient : this.tfClient,
+          object : newMesh
       });
       this.rootObject.add(this.meshes[element.object.id]);
       this.meshes[element.object.id].updatePose(element.object.pose);
@@ -76,16 +76,21 @@ ROS3D.SceneClient.prototype.processMessage = function(message){
   message.world.collision_objects.forEach (element => {
     if (element.operation === 0) {  // "ADD" or "MODIFY"
 
-    var newMesh = new ROS3D.SceneMesh({
-      message : element
-    });
-
-    this.meshes[element.id] = new ROS3D.SceneNode({
-        frameID : element.header.frame_id,
-        tfClient : this.tfClient,
-        object : newMesh
+      var newMesh = new ROS3D.SceneMesh({
+        message : element
       });
-      this.rootObject.add(this.meshes[element.id]);
+      if(!(element.id in this.meshes)) {
+        this.meshes[element.id] = new ROS3D.SceneNode({
+          frameID : element.header.frame_id,
+          tfClient : this.tfClient,
+          object : newMesh
+        });
+        this.rootObject.add(this.meshes[element.id]);
+      }
+      else{
+        console.log(element.header.frame_id);
+        console.log(element.id);
+      }
       this.meshes[element.id].updatePose(element.pose);
     } else {
       this.removeMesh(element.id);
