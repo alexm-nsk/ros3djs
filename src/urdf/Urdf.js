@@ -96,7 +96,10 @@ ROS3D.Urdf = function(options) {
 ROS3D.Urdf.prototype.createShapeMesh = function(visual, options) {
   var colorMaterial = null;
   if (!colorMaterial) {
-    colorMaterial = ROS3D.makeColorMaterial(0, 0, 0, 1);
+    colorMaterial = ROS3D.makeColorMaterial(visual.material.color.r,
+                                            visual.material.color.g,
+                                            visual.material.color.b,
+                                            visual.material.color.a);
   }
   var shapeMesh;
   // Create a shape

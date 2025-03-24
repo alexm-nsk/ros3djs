@@ -56696,7 +56696,7 @@ var Urdf = /*@__PURE__*/(function (superclass) {
   Urdf.prototype.createShapeMesh = function createShapeMesh (visual, options) {
     var colorMaterial = null;
     if (!colorMaterial) {
-      colorMaterial = makeColorMaterial(0, 0, 0, 1);
+      colorMaterial = makeColorMaterial(visual.material.color.r, visual.material.color.g, visual.material.color.b, visual.material.color.a);
     }
     var shapeMesh;
     // Create a shape
