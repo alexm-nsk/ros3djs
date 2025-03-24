@@ -18,7 +18,6 @@ ROS3D.SceneMesh = function(options) {
   if (message.meshes[0] !== undefined) {
 
     var verts = []
-    var norms = []
     var indices = []
 
     message.meshes[0].triangles.forEach (triangle => {
