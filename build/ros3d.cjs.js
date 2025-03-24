@@ -52421,7 +52421,7 @@ var SceneClient = /*@__PURE__*/(function (EventEmitter3) {
         });
         this$1$1.meshes[element.object.id].children[0].material.color.setRGB(0.3, 0, 0.3);
         this$1$1.meshes[element.object.id].children[0].material.transparent = true;
-        this$1$1.meshes[element.object.id].children[0].material.opacity = 0.3;
+        this$1$1.meshes[element.object.id].children[0].material.opacity = 0.7;
         this$1$1.rootObject.add(this$1$1.meshes[element.object.id]);
         this$1$1.meshes[element.object.id].updatePose(element.object.pose);
       } else {
