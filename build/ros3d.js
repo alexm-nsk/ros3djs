@@ -52448,6 +52448,9 @@ var ROS3D = (function (exports, ROSLIB) {
 	            tfClient : this.tfClient,
 	            object : newMesh
 	        });
+	        this.meshes[element.object.id].children[0].material.color.setRGB(0.3, 0, 0.3);
+	        this.meshes[element.object.id].children[0].material.transparent = true;
+	        this.meshes[element.object.id].children[0].material.opacity = 0.3;
 	        this.rootObject.add(this.meshes[element.object.id]);
 	        this.meshes[element.object.id].updatePose(element.object.pose);
 	      } else {
