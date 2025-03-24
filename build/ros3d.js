@@ -52215,40 +52215,40 @@ var ROS3D = (function (exports, ROSLIB) {
 
 
 	      var verts = [];
-	      var norms = [];
+	      var indices = [];
+	      // message.meshes[0].triangles.forEach (triangle => {
+	      //   triangle.vertex_indices.forEach(v_i => {
+	      //     const vertex = message.meshes[0].vertices[v_i]
+	      //     verts.push(vertex.x);
+	      //     verts.push(vertex.y);
+	      //     verts.push(vertex.z);
+	      //     const normLength = Math.sqrt(Math.pow(vertex.x, 2) +
+	      //     Math.pow(vertex.y, 2) +
+	      //     Math.pow(vertex.z, 2));
+	      //     norms.push(vertex.x / normLength);
+	      //     norms.push(vertex.y / normLength);
+	      //     norms.push(vertex.z / normLength);
+	      //   });
+	      // });
 	      message.meshes[0].triangles.forEach (triangle => {
-	        triangle.vertex_indices.forEach(v_i => {
-	          const vertex = message.meshes[0].vertices[v_i];
-	          verts.push(vertex.x);
-	          verts.push(vertex.y);
-	          verts.push(vertex.z);
-	          const normLength = Math.sqrt(Math.pow(vertex.x, 2) +
-	          Math.pow(vertex.y, 2) +
-	          Math.pow(vertex.z, 2));
-	          norms.push(vertex.x / normLength);
-	          norms.push(vertex.y / normLength);
-	          norms.push(vertex.z / normLength);
-	        });
+	        indices.push(...triangle.vertex_indices);
+	      });
+
+	      message.meshes[0].vertices.forEach (vertex => {
+	        verts.push(vertex.x, vertex.y, vertex.z);
 	      });
 
 	      const vertices = new Float32Array( verts );
+	      //const normals = new Float32Array( norms );
 
 	      const geometry = new THREE.BufferGeometry();
 	      geometry.addAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
+	      geometry.setIndex(indices);
 	      //geometry.addAttribute( 'normal', new THREE.BufferAttribute( normals, 3 ) );
 	      geometry.computeVertexNormals();
 
 	      this.material = makeColorMaterial( 1, 1, 1, 1 );
 	      this.mesh = new THREE.Mesh( geometry, this.material );
-	      // this.mesh.position.x = message.pose.position.x;
-	      // this.mesh.position.y = message.pose.position.y;
-	      // this.mesh.position.z = message.pose.position.z;
-	      // this.mesh.rotation.setFromQuaternion(new THREE.Quaternion(
-	      //   message.pose.orientation.x,
-	      //   message.pose.orientation.y,
-	      //   message.pose.orientation.z,
-	      //   message.pose.orientation.w
-	      // ));
 
 	      this.add(this.mesh);
 	      this.updateMatrixWorld();
