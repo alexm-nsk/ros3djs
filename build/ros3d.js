@@ -58246,11 +58246,6 @@ var ROS3D = (function (exports, ROSLIB) {
 
 	    this.scene.add(this.camera);
 
-	    const targetObject = new THREE.Object3D();
-	    this.scene.add(targetObject);
-
-	    this.directionalLight = targetObject;
-
 	    // propagates mouse events to three.js objects
 	    this.selectableObjects = new THREE.Group();
 	    this.scene.add(this.selectableObjects);

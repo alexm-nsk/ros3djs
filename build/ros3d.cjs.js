@@ -57683,11 +57683,6 @@ var Viewer = function Viewer(options) {
 
   this.scene.add(this.camera);
 
-  var targetObject = new THREE.Object3D();
-  this.scene.add(targetObject);
-
-  this.directionalLight = targetObject;
-
   // propagates mouse events to three.js objects
   this.selectableObjects = new THREE.Group();
   this.scene.add(this.selectableObjects);
