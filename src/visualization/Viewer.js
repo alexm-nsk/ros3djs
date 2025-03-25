@@ -34,7 +34,7 @@ ROS3D.Viewer = function(options) {
   var height = options.height;
   var background = options.background || '#111111';
   var antialias = options.antialias;
-  var intensity = options.intensity || 0.66;
+  var intensity = options.intensity || 0.88;
   var near = options.near || 0.01;
   var far = options.far || 1000;
   var alpha = options.alpha || 1.0;
@@ -76,9 +76,16 @@ ROS3D.Viewer = function(options) {
   this.cameraControls.userZoomSpeed = cameraZoomSpeed;
 
   // lights
-  this.scene.add(new THREE.AmbientLight(0x555555));
+  this.scene.add(new THREE.AmbientLight(0x222222));
   this.directionalLight = new THREE.DirectionalLight(0xffffff, intensity);
-  this.scene.add(this.directionalLight);
+  this.camera.add(this.directionalLight);
+
+  this.scene.add(this.camera);
+
+  const targetObject = new THREE.Object3D();
+  this.scene.add(targetObject);
+
+  this.directionalLight = targetObject;
 
   // propagates mouse events to three.js objects
   this.selectableObjects = new THREE.Group();

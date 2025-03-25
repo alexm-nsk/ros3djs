@@ -52453,7 +52453,7 @@ var ROS3D = (function (exports, ROSLIB) {
 	        this.meshes[element.object.id].children[0].material.color.setRGB(0.3, 0, 0.3);
 	        this.meshes[element.object.id].children[0].material.transparent = true;
 	        this.meshes[element.object.id].children[0].material.opacity = 0.7;
-	        this.meshes[element.object.id].updatePose(element.object.pose);
+	        this.meshes[element.object.id].children[0].setPose(element.object.pose);
 	      } else {
 	        this.removeMesh(element.object.id);
 	      }
@@ -58198,7 +58198,7 @@ var ROS3D = (function (exports, ROSLIB) {
 	    var height = options.height;
 	    var background = options.background || '#111111';
 	    var antialias = options.antialias;
-	    var intensity = options.intensity || 0.66;
+	    var intensity = options.intensity || 0.88;
 	    var near = options.near || 0.01;
 	    var far = options.far || 1000;
 	    var alpha = options.alpha || 1.0;
@@ -58240,9 +58240,16 @@ var ROS3D = (function (exports, ROSLIB) {
 	    this.cameraControls.userZoomSpeed = cameraZoomSpeed;
 
 	    // lights
-	    this.scene.add(new THREE.AmbientLight(0x555555));
+	    this.scene.add(new THREE.AmbientLight(0x222222));
 	    this.directionalLight = new THREE.DirectionalLight(0xffffff, intensity);
-	    this.scene.add(this.directionalLight);
+	    this.camera.add(this.directionalLight);
+
+	    this.scene.add(this.camera);
+
+	    const targetObject = new THREE.Object3D();
+	    this.scene.add(targetObject);
+
+	    this.directionalLight = targetObject;
 
 	    // propagates mouse events to three.js objects
 	    this.selectableObjects = new THREE.Group();
