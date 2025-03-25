@@ -71,7 +71,7 @@ ROS3D.SceneClient.prototype.processMessage = function(message){
       this.meshes[element.object.id].children[0].material.color.setRGB(0.3, 0, 0.3);
       this.meshes[element.object.id].children[0].material.transparent = true;
       this.meshes[element.object.id].children[0].material.opacity = 0.7;
-      this.meshes[element.object.id].updatePose(element.object.pose);
+      this.meshes[element.object.id].children[0].setPose(element.object.pose);
     } else {
       this.removeMesh(element.object.id);
     }
