@@ -52409,20 +52409,21 @@ var SceneClient = /*@__PURE__*/(function (EventEmitter3) {
 
     message.robot_state.attached_collision_objects.forEach (function (element) {
       if (element.object.operation === 0) {  // "ADD" or "MODIFY"
+        if (!(element.object.id in this$1$1.meshes)) {
+          var newMesh = new SceneMesh({
+            message : element.object
+          });
 
-        var newMesh = new SceneMesh({
-          message : element.object
-        });
-
-        this$1$1.meshes[element.object.id] = new SceneNode({
+          this$1$1.meshes[element.object.id] = new SceneNode({
             frameID : element.object.header.frame_id,
             tfClient : this$1$1.tfClient,
             object : newMesh
-        });
+          });
+          this$1$1.rootObject.add(this$1$1.meshes[element.object.id]);
+        }
         this$1$1.meshes[element.object.id].children[0].material.color.setRGB(0.3, 0, 0.3);
         this$1$1.meshes[element.object.id].children[0].material.transparent = true;
         this$1$1.meshes[element.object.id].children[0].material.opacity = 0.7;
-        this$1$1.rootObject.add(this$1$1.meshes[element.object.id]);
         this$1$1.meshes[element.object.id].updatePose(element.object.pose);
       } else {
         this$1$1.removeMesh(element.object.id);

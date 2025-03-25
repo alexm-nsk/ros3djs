@@ -56,20 +56,21 @@ ROS3D.SceneClient.prototype.processMessage = function(message){
 
   message.robot_state.attached_collision_objects.forEach (element => {
     if (element.object.operation === 0) {  // "ADD" or "MODIFY"
+      if (!(element.object.id in this.meshes)) {
+        var newMesh = new ROS3D.SceneMesh({
+          message : element.object
+        });
 
-      var newMesh = new ROS3D.SceneMesh({
-        message : element.object
-      });
-
-      this.meshes[element.object.id] = new ROS3D.SceneNode({
+        this.meshes[element.object.id] = new ROS3D.SceneNode({
           frameID : element.object.header.frame_id,
           tfClient : this.tfClient,
           object : newMesh
-      });
+        });
+        this.rootObject.add(this.meshes[element.object.id]);
+      }
       this.meshes[element.object.id].children[0].material.color.setRGB(0.3, 0, 0.3);
       this.meshes[element.object.id].children[0].material.transparent = true;
       this.meshes[element.object.id].children[0].material.opacity = 0.7;
-      this.rootObject.add(this.meshes[element.object.id]);
       this.meshes[element.object.id].updatePose(element.object.pose);
     } else {
       this.removeMesh(element.object.id);
